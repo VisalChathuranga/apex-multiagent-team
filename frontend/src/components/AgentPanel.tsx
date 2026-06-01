@@ -27,7 +27,8 @@ export function AgentPanel({ agents, tasks = [] }: Props) {
   const list = Object.values(agents);
 
   function currentTask(role: string) {
-    return tasks.find((t) => t.assignee === role && t.status === "in_progress");
+    const matches = tasks.filter((t) => t.assignee === role && t.status === "in_progress");
+    return matches.length > 0 ? matches.reduce((a, b) => (b.id > a.id ? b : a)) : undefined;
   }
 
   return (

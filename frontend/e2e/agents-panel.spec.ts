@@ -67,25 +67,27 @@ test.describe("Agent Status panel — display", () => {
   });
 
   test("shows current task for busy agent", async ({ page }) => {
-    await seedAgent("Backend");
-    const TITLE = "Build REST layer (agent-panel-e2e)";
+    // Use a role no other parallel spec file touches, so currentTask() is
+    // unambiguous even when task-board tests create Backend in_progress tasks.
+    const ROLE = "Orchestrator";
+    const TITLE = "Deploy infra (agents-e2e)";
+    await seedAgent(ROLE);
     await fetch(`${API}/api/tasks`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title: TITLE, assignee: "Backend", created_by: "PM" }),
+      body: JSON.stringify({ title: TITLE, assignee: ROLE, created_by: "PM" }),
     });
-    // Look up by unique title to avoid last-element race in parallel workers
     const tasks = await fetch(`${API}/api/tasks`).then((x: Response) => x.json());
     const t = tasks.find((x: { title: string }) => x.title === TITLE);
     if (!t) throw new Error(`Task "${TITLE}" not found`);
     await fetch(`${API}/api/tasks/${t.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: "in_progress", by_role: "Backend" }),
+      body: JSON.stringify({ status: "in_progress", by_role: ROLE }),
     });
 
     await waitForRefresh(page, async () => {
-      const row = page.getByTestId("agent-row-Backend");
+      const row = page.getByTestId(`agent-row-${ROLE}`);
       await expect(row.getByText(TITLE)).toBeVisible();
     });
   });
