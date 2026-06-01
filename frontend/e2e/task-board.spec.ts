@@ -10,9 +10,7 @@
  */
 
 import { test, expect, Page } from "@playwright/test";
-import { seedAgent, seedTask, waitForRefresh } from "./helpers";
-
-const API = "http://localhost:7000";
+import { API, seedAgent, seedTask, waitForRefresh } from "./helpers";
 
 async function getTaskId(title: string): Promise<number> {
   const tasks = await fetch(`${API}/api/tasks`).then((r) => r.json());

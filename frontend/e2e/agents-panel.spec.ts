@@ -7,9 +7,7 @@
  */
 
 import { test, expect } from "@playwright/test";
-import { seedAgent, waitForRefresh } from "./helpers";
-
-const API = "http://localhost:7000";
+import { API, seedAgent, waitForRefresh } from "./helpers";
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/");

@@ -1,25 +1,30 @@
 import { defineConfig, devices } from "@playwright/test";
+import { join } from "path";
 
 /**
  * E2E tests for the APEX Team dashboard.
  *
- * Assumptions:
- *   - Next.js dev server runs on http://localhost:3000
- *   - api_server.py (FastAPI) runs on http://localhost:7000
- *     Start with: uvicorn api_server:app --port 7000
- *       (from D:\apex-team)
+ * Playwright automatically starts two servers:
+ *   - Test API on :7001 (TEAM_STATE_FILE=e2e_test_state.json, isolated from live board)
+ *   - Next.js on :3001 pointing at the test API
+ *
+ * The globalSetup writes a clean e2e_test_state.json before each suite run.
+ * The live APEX board on :7000 / :3000 is never touched.
  */
+const E2E_API_PORT = 7001;
+const E2E_NEXT_PORT = 3001;
+
 export default defineConfig({
   testDir: "./e2e",
   globalSetup: "./e2e/global-setup.ts",
   timeout: 30_000,
   expect: { timeout: 8_000 },
-  fullyParallel: false,   // panels share WS state — safer sequential
+  fullyParallel: false,
   retries: process.env.CI ? 2 : 0,
   reporter: [["list"], ["html", { open: "never" }]],
 
   use: {
-    baseURL: "http://localhost:3000",
+    baseURL: `http://localhost:${E2E_NEXT_PORT}`,
     trace: "on-first-retry",
     video: "on-first-retry",
   },
@@ -31,10 +36,24 @@ export default defineConfig({
     },
   ],
 
-  webServer: {
-    command: "npm run dev",
-    url: "http://localhost:3000",
-    reuseExistingServer: !process.env.CI,
-    timeout: 60_000,
-  },
+  webServer: [
+    {
+      command: `uvicorn api_server:app --port ${E2E_API_PORT} --log-level warning`,
+      url: `http://localhost:${E2E_API_PORT}/api/state`,
+      env: { TEAM_STATE_FILE: "./e2e_test_state.json" },
+      cwd: join(__dirname, ".."),
+      reuseExistingServer: false,
+      timeout: 30_000,
+    },
+    {
+      command: `npx next dev -p ${E2E_NEXT_PORT}`,
+      url: `http://localhost:${E2E_NEXT_PORT}`,
+      env: {
+        NEXT_PUBLIC_API_URL: `http://localhost:${E2E_API_PORT}`,
+        NEXT_PUBLIC_WS_URL: `ws://localhost:${E2E_API_PORT}/ws/updates`,
+      },
+      reuseExistingServer: false,
+      timeout: 60_000,
+    },
+  ],
 });

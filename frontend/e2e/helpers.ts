@@ -4,7 +4,7 @@
 
 import { Page, expect } from "@playwright/test";
 
-const API = "http://localhost:7000";
+export const API = process.env.E2E_API_URL ?? "http://localhost:7001";
 
 // ---------------------------------------------------------------------------
 // API seed helpers — call via fetch in tests to set up known state
