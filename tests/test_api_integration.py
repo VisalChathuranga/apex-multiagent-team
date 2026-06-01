@@ -1,65 +1,14 @@
 """
 Integration tests for api_server.py — all REST endpoints and WebSocket /ws/updates.
 
-Each test runs against a fresh temporary state file so the production
-shared_state.json is never touched.
+Fixtures (tmp_state, client) are provided by conftest.py.
+Each test gets a fresh temporary state file — production shared_state.json is untouched.
 """
 
 import json
-import tempfile
 from pathlib import Path
 
 import pytest
-from fastapi.testclient import TestClient
-
-import team_coordinator as tc
-import api_server
-
-
-# ---------------------------------------------------------------------------
-# Fixtures
-# ---------------------------------------------------------------------------
-
-MINIMAL_STATE = {
-    "agents": {},
-    "messages": [],
-    "tasks": [],
-    "notes": [],
-    "facts": {},
-    "summaries": [],
-    "activity_log": [],
-    "findings": [],
-    "debate": None,
-    "_write_count": 0,
-}
-
-
-@pytest.fixture()
-def tmp_state(tmp_path, monkeypatch):
-    """Point team_coordinator at a fresh temporary state file for each test."""
-    state_file = tmp_path / "test_state.json"
-    state_file.write_text(json.dumps(MINIMAL_STATE, indent=2), encoding="utf-8")
-
-    lock_file = tmp_path / "test_state.json.lock"
-
-    monkeypatch.setattr(tc, "STATE_FILE", state_file)
-    monkeypatch.setattr(tc, "LOCK_FILE", lock_file)
-    return state_file
-
-
-@pytest.fixture()
-def client(tmp_state):
-    """FastAPI TestClient wired to a fresh state file."""
-    with TestClient(api_server.app, raise_server_exceptions=True) as c:
-        yield c
-
-
-# ---------------------------------------------------------------------------
-# Helper
-# ---------------------------------------------------------------------------
-
-def _read_state(tmp_state: Path) -> dict:
-    return json.loads(tmp_state.read_text(encoding="utf-8"))
 
 
 # ---------------------------------------------------------------------------
