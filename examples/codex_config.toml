@@ -1,0 +1,5 @@
+# Codex CLI — ~/.codex/config.toml  (point at apex_v25.py, share TEAM_STATE_FILE)
+[mcp_servers.team]
+command = "python"
+args = ["/ABS/PATH/apex-team/apex_v25.py"]
+env = { TEAM_STATE_FILE = "/ABS/PATH/apex-team/shared_state.json", BRAIN_DIR = "/ABS/PATH/apex-team/second_brain", MAX_AGENTS = "4", MSG_ROTATE_LIMIT = "800" }

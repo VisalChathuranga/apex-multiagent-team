@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "team": {
+      "command": "python",
+      "args": ["/ABS/PATH/apex-team/apex_v25.py"],
+      "env": {
+        "TEAM_STATE_FILE": "/ABS/PATH/apex-team/shared_state.json",
+        "BRAIN_DIR": "/ABS/PATH/apex-team/second_brain",
+        "APEX_ANTIGRAVITY_DIR": "~/.gemini/antigravity/skills",
+        "APEX_CYBERSEC_DIR": "~/.gemini/cybersecurity-skills/skills",
+        "MAX_AGENTS": "4",
+        "MSG_ROTATE_LIMIT": "800"
+      }
+    }
+  }
+}
