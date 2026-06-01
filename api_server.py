@@ -176,6 +176,20 @@ class RecoverBody(BaseModel):
     by_role: str = "PM"
 
 
+_EMPTY_STATE = {
+    "agents": {},
+    "messages": [],
+    "tasks": [],
+    "notes": [],
+    "facts": {},
+    "summaries": [],
+    "activity_log": [],
+    "findings": [],
+    "debate": None,
+    "_write_count": 0,
+}
+
+
 # ---------------------------------------------------------------------------
 # GET endpoints
 # ---------------------------------------------------------------------------
@@ -289,6 +303,16 @@ def set_fact(body: SetFactBody):
 def recover_tasks(body: RecoverBody = RecoverBody()):
     result = tc.recover_tasks(stale_seconds=body.stale_seconds, by_role=body.by_role)
     return {"message": result}
+
+
+@app.post("/api/state/reset")
+def reset_state():
+    """Test utility: wipe all agents/tasks/messages/facts back to empty state."""
+    def _do_reset(state: dict) -> dict:
+        state.update(_EMPTY_STATE)
+        return state
+    tc._mutate(_do_reset)
+    return {"message": "State reset to empty."}
 
 
 # ---------------------------------------------------------------------------
