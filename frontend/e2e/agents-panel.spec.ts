@@ -51,17 +51,18 @@ test.describe("Agent Status panel — display", () => {
   });
 
   test("updates live when an agent status changes via WebSocket", async ({ page }) => {
-    await seedAgent("Backend");
+    // Use a role no other parallel spec touches to avoid status-reset interference
+    const ROLE = "LiveMonitor";
+    await seedAgent(ROLE);
 
-    // Mark busy via API, expect the panel to update without refresh
-    await fetch(`${API}/api/agents/Backend/status`, {
+    await fetch(`${API}/api/agents/${ROLE}/status`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: "busy" }),
     });
 
     await waitForRefresh(page, async () => {
-      const row = page.getByTestId("agent-row-Backend");
+      const row = page.getByTestId(`agent-row-${ROLE}`);
       await expect(row.getByText(/busy/i)).toBeVisible();
     });
   });

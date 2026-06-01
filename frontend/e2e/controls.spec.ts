@@ -94,43 +94,31 @@ test.describe("Controls panel — action buttons", () => {
   test("assign button triggers auto-assign and shows result", async ({ page }) => {
     await seedAgent("PM");
     const btn = page.getByTestId("btn-assign");
-    if (await btn.count() === 0) {
-      test.skip(true, "btn-assign not found; panel may not include this button");
-    }
+    await expect(btn).toBeVisible(); // auto-wait for dashboard to render
     await btn.click();
-    // Should show some feedback (toast, message, or channel update)
-    await waitForRefresh(page, async () => {
-      await expect(
-        page.getByText(/assign/i).or(page.getByText(/no tasks/i)).first()
-      ).toBeVisible();
-    });
+    // ControlsPanel flashes "Auto-assign triggered." for 3 s
+    const feedback = page.getByTestId("controls-feedback");
+    await expect(feedback).toBeVisible({ timeout: 5_000 });
+    await expect(feedback).toContainText(/assign/i);
   });
 
   test("recover button fires recovery and board updates", async ({ page }) => {
     const btn = page.getByTestId("btn-recover");
-    if (await btn.count() === 0) {
-      test.skip(true, "btn-recover not found; panel may not include this button");
-    }
+    await expect(btn).toBeVisible();
     await btn.click();
-    // Expect a channel message or toast confirming recovery ran
-    await waitForRefresh(page, async () => {
-      await expect(
-        page.getByText(/recover/i).or(page.getByText(/no stale/i)).first()
-      ).toBeVisible();
-    });
+    // ControlsPanel flashes the recovery result message
+    const feedback = page.getByTestId("controls-feedback");
+    await expect(feedback).toBeVisible({ timeout: 5_000 });
   });
 
   test("export button creates a report and shows confirmation", async ({ page }) => {
     const btn = page.getByTestId("btn-export");
-    if (await btn.count() === 0) {
-      test.skip(true, "btn-export not found; panel may not include this button");
-    }
-    await btn.click();
-    // Expect a download prompt or a success notification
+    await expect(btn).toBeVisible();
     const [download] = await Promise.all([
-      page.waitForEvent("download", { timeout: 5_000 }).catch(() => null),
-      page.waitForSelector("[data-testid='export-success']", { timeout: 5_000 }).catch(() => null),
+      page.waitForEvent("download", { timeout: 8_000 }),
+      btn.click(),
     ]);
-    expect(download ?? page.locator("[data-testid='export-success']")).toBeTruthy();
+    expect(download).toBeTruthy();
+    expect(download.suggestedFilename()).toContain("apex-state-export");
   });
 });
