@@ -49,10 +49,9 @@ test.describe("Chat panel — display", () => {
     await seedMessage("QA", "@PM tests green", "PM");
 
     await waitForRefresh(page, async () => {
-      // The mention text should have a highlight class or data-mention attr
-      const mention = page.locator("[data-mention], .mention, .highlight-mention").filter({
-        hasText: "@PM",
-      });
+      // ChatPanel wraps @mentions in <span class="font-semibold text-amber-400">
+      const feed = page.getByTestId("chat-messages");
+      const mention = feed.locator("span.text-amber-400").filter({ hasText: "@PM" });
       await expect(mention.first()).toBeVisible();
     });
   });
