@@ -1,23 +1,30 @@
-import { request } from "@playwright/test";
+import { writeFileSync } from "fs";
+import { join } from "path";
 
 /**
- * Playwright global setup: reset API state before the test suite runs.
- * This ensures each test run starts from a clean slate, avoiding message/task
- * accumulation from prior runs.
+ * Playwright global setup: write a fresh empty state file for the E2E test
+ * server (port 7001, separate from the production server on port 7000).
  *
- * Requires the FastAPI server to be running on port 7000.
+ * The E2E server is started via playwright.config.ts webServer and uses
+ * TEAM_STATE_FILE=./e2e_test_state.json so it never touches shared_state.json.
  */
+const EMPTY_STATE = {
+  agents: {},
+  messages: [],
+  tasks: [],
+  notes: [],
+  facts: {},
+  summaries: [],
+  activity_log: [],
+  findings: [],
+  debate: null,
+  _write_count: 0,
+};
+
 async function globalSetup() {
-  try {
-    const context = await request.newContext({ baseURL: "http://localhost:7000" });
-    await context.post("/api/state/reset");
-    await context.dispose();
-  } catch {
-    // Server not running yet — Playwright's webServer directive will start Next.js
-    // but api_server must be started separately. Silently continue; tests will
-    // show meaningful errors if the API is unreachable.
-    console.warn("[global-setup] WARNING: could not reset API state (server not reachable). Run: uvicorn api_server:app --port 7000");
-  }
+  const stateFile = join(process.cwd(), "..", "e2e_test_state.json");
+  writeFileSync(stateFile, JSON.stringify(EMPTY_STATE, null, 2), "utf-8");
+  console.log("[global-setup] Wrote clean test state to", stateFile);
 }
 
 export default globalSetup;

@@ -90,7 +90,9 @@ test.describe("Task Board — task cards", () => {
     await waitForRefresh(page, async () => {
       const card = page.getByTestId(`task-card-${tid}`);
       await expect(card).toBeVisible();
-      await expect(card.getByText(/high/i)).toBeVisible();
+      // Scope to the badge element — card title also contains "high" so plain
+      // getByText(/high/i) triggers a strict-mode violation.
+      await expect(card.locator('[data-slot="badge"]').getByText("high")).toBeVisible();
     });
   });
 
@@ -101,7 +103,8 @@ test.describe("Task Board — task cards", () => {
 
     await waitForRefresh(page, async () => {
       const card = page.getByTestId(`task-card-${tid}`);
-      await expect(card.getByText("Frontend")).toBeVisible();
+      // "@Frontend" is unique to the assignee paragraph; card title is "Frontend task"
+      await expect(card.getByText("@Frontend")).toBeVisible();
     });
   });
 });

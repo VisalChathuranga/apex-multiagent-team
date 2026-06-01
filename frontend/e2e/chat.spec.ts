@@ -37,7 +37,10 @@ test.describe("Chat panel — display", () => {
 
     await waitForRefresh(page, async () => {
       const feed = page.getByTestId("chat-messages");
-      await expect(feed.getByText("Backend")).toBeVisible();
+      // "Backend" appears in system join messages too — scope to sender spans only
+      await expect(
+        feed.locator("span.font-semibold.text-blue-400").filter({ hasText: "Backend" }).first()
+      ).toBeVisible();
       await expect(feed.getByText("API layer done")).toBeVisible();
     });
   });
@@ -105,10 +108,12 @@ test.describe("Chat panel — sending messages", () => {
   });
 
   test("empty message is not sent", async ({ page }) => {
-    const beforeCount = await page.getByTestId("chat-messages").locator("[data-testid^='chat-message-']").count();
-    await page.getByTestId("chat-send").click();
-    const afterCount = await page.getByTestId("chat-messages").locator("[data-testid^='chat-message-']").count();
-    expect(afterCount).toBe(beforeCount);
+    const input = page.getByTestId("chat-input");
+    const btn = page.getByTestId("chat-send");
+    // Input is empty on load — button must be disabled; clicking a disabled button
+    // hangs in Playwright, so assert disabled state directly.
+    await expect(input).toHaveValue("");
+    await expect(btn).toBeDisabled();
   });
 
   test("feed auto-scrolls to latest message", async ({ page }) => {

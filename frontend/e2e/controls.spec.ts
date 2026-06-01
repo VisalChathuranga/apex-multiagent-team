@@ -59,13 +59,12 @@ test.describe("Controls panel — add-task form", () => {
   });
 
   test("submit is disabled when title is empty", async ({ page }) => {
-    // Either the button is disabled or clicking it does nothing
-    await page.getByTestId("add-task-title").fill("");
+    // Button is disabled when input is empty — assert directly rather than
+    // clicking (clicking a disabled button hangs in Playwright).
+    const input = page.getByTestId("add-task-title");
     const btn = page.getByTestId("add-task-submit");
-    const tasksBefore = await fetch(`${API}/api/tasks`).then((r) => r.json());
-    await btn.click();
-    const tasksAfter = await fetch(`${API}/api/tasks`).then((r) => r.json());
-    expect(tasksAfter.length).toBe(tasksBefore.length);
+    await expect(input).toHaveValue(""); // starts empty
+    await expect(btn).toBeDisabled();
   });
 });
 

@@ -68,15 +68,17 @@ test.describe("Agent Status panel — display", () => {
 
   test("shows current task for busy agent", async ({ page }) => {
     await seedAgent("Backend");
-    // Add a task and assign to Backend
-    const r = await fetch(`${API}/api/tasks`, {
+    const TITLE = "Build REST layer (agent-panel-e2e)";
+    await fetch(`${API}/api/tasks`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title: "Build REST layer", assignee: "Backend", created_by: "PM" }),
+      body: JSON.stringify({ title: TITLE, assignee: "Backend", created_by: "PM" }),
     });
-    const tasks = await fetch(`${API}/api/tasks`).then((x) => x.json());
-    const tid = tasks[tasks.length - 1].id;
-    await fetch(`${API}/api/tasks/${tid}`, {
+    // Look up by unique title to avoid last-element race in parallel workers
+    const tasks = await fetch(`${API}/api/tasks`).then((x: Response) => x.json());
+    const t = tasks.find((x: { title: string }) => x.title === TITLE);
+    if (!t) throw new Error(`Task "${TITLE}" not found`);
+    await fetch(`${API}/api/tasks/${t.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: "in_progress", by_role: "Backend" }),
@@ -84,7 +86,7 @@ test.describe("Agent Status panel — display", () => {
 
     await waitForRefresh(page, async () => {
       const row = page.getByTestId("agent-row-Backend");
-      await expect(row.getByText("Build REST layer")).toBeVisible();
+      await expect(row.getByText(TITLE)).toBeVisible();
     });
   });
 });
