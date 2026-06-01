@@ -27,8 +27,8 @@ export function ControlsPanel() {
       await api.addTask({ title: taskTitle.trim(), priority: "medium" });
       setTaskTitle("");
       flash("Task added.");
-    } catch (err: any) {
-      flash(`Error: ${err.message}`);
+    } catch (err: unknown) {
+      flash(`Error: ${err instanceof Error ? err.message : String(err)}`);
     }
   }
 
@@ -39,8 +39,8 @@ export function ControlsPanel() {
       await api.postMessage({ sender_role: SENDER_ROLE, text: msgText.trim() });
       setMsgText("");
       flash("Message sent.");
-    } catch (err: any) {
-      flash(`Error: ${err.message}`);
+    } catch (err: unknown) {
+      flash(`Error: ${err instanceof Error ? err.message : String(err)}`);
     }
   }
 
@@ -52,8 +52,8 @@ export function ControlsPanel() {
     try {
       const r = await api.recover();
       flash(r.message ?? "Recovery done.");
-    } catch (err: any) {
-      flash(`Error: ${err.message}`);
+    } catch (err: unknown) {
+      flash(`Error: ${err instanceof Error ? err.message : String(err)}`);
     }
   }
 
@@ -68,8 +68,8 @@ export function ControlsPanel() {
       a.click();
       URL.revokeObjectURL(url);
       flash("Export downloaded.");
-    } catch (err: any) {
-      flash(`Error: ${err.message}`);
+    } catch (err: unknown) {
+      flash(`Error: ${err instanceof Error ? err.message : String(err)}`);
     }
   }
 
@@ -112,7 +112,7 @@ export function ControlsPanel() {
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
-                handlePostMessage(e as any);
+                handlePostMessage(e as React.FormEvent);
               }
             }}
             rows={2}
