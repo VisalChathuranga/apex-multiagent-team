@@ -41,12 +41,12 @@ def _run(argv: list, seed: str, use_stdin: bool) -> int:
     if env.get("TERM") == "dumb":
         env.pop("TERM", None)
     if use_stdin:
-        return subprocess.call(
+        return subprocess.run(
             argv,
             input=seed,
             text=True,
             env=env,
-        )
+        ).returncode
     return subprocess.call(argv + [seed], env=env)
 
 
@@ -71,9 +71,6 @@ def main() -> int:
     argv = [exe] + extra
 
     use_stdin = len(seed) > _STDIN_PROMPT_THRESHOLD
-    if cli == "codex" and sys.platform == "win32":
-        # npm codex.CMD + long prompts are more reliable via stdin.
-        use_stdin = use_stdin or len(seed) > 400
 
     try:
         return _run(argv, seed, use_stdin)
