@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { Message } from "@/lib/api";
+import { useEffect, useRef, useState } from "react";
+import { Message, api } from "@/lib/api";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 function renderText(text: string) {
@@ -24,10 +26,23 @@ interface Props {
 
 export function ChatPanel({ messages }: Props) {
   const bottomRef = useRef<HTMLDivElement>(null);
+  const [text, setText] = useState("");
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages.length]);
+
+  async function handleSend(e?: React.FormEvent) {
+    e?.preventDefault();
+    const trimmed = text.trim();
+    if (!trimmed) return;
+    try {
+      await api.postMessage({ sender_role: "Dashboard", text: trimmed });
+      setText("");
+    } catch {
+      // silently ignore; user can retry
+    }
+  }
 
   return (
     <Card className="flex flex-col" data-testid="chat-panel">
@@ -36,8 +51,8 @@ export function ChatPanel({ messages }: Props) {
           Channel
         </CardTitle>
       </CardHeader>
-      <CardContent className="flex-1">
-        <ScrollArea className="h-64">
+      <CardContent className="flex-1 flex flex-col gap-2">
+        <ScrollArea className="h-56">
           <div className="space-y-1 pr-2" data-testid="chat-messages">
             {messages.length === 0 && (
               <p className="text-sm text-muted-foreground">No messages yet.</p>
@@ -52,6 +67,29 @@ export function ChatPanel({ messages }: Props) {
             <div ref={bottomRef} />
           </div>
         </ScrollArea>
+        <form onSubmit={handleSend} className="flex gap-2">
+          <Input
+            data-testid="chat-input"
+            placeholder="Send a message…"
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                handleSend();
+              }
+            }}
+            className="flex-1 text-sm"
+          />
+          <Button
+            data-testid="chat-send"
+            type="submit"
+            size="sm"
+            disabled={!text.trim()}
+          >
+            Send
+          </Button>
+        </form>
       </CardContent>
     </Card>
   );

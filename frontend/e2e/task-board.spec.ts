@@ -62,7 +62,7 @@ test.describe("Task Board — task cards", () => {
     });
 
     await waitForRefresh(page, async () => {
-      const col = page.getByTestId("column-in_progress");
+      const col = page.getByTestId("column-in-progress");
       await expect(col.getByTestId(`task-card-${tid}`)).toBeVisible();
     });
   });

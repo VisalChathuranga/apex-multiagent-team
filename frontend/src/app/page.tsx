@@ -24,7 +24,7 @@ export default function Home() {
       <div className="grid gap-4 md:grid-cols-3">
         {/* Left column: agents + controls */}
         <div className="space-y-4">
-          <AgentPanel agents={state.agents} />
+          <AgentPanel agents={state.agents} tasks={state.tasks} />
           <ControlsPanel />
         </div>
 

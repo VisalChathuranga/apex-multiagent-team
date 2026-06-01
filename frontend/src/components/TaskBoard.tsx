@@ -76,7 +76,7 @@ export function TaskBoard({ tasks }: Props) {
                 return (p[a.priority] ?? 1) - (p[b.priority] ?? 1) || a.id - b.id;
               });
             return (
-              <div key={col.key} data-testid={`column-${col.key}`}>
+              <div key={col.key} data-testid={`column-${col.key.replace(/_/g, "-")}`}>
                 <p className="mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                   {col.label}{" "}
                   <span className="font-normal">({colTasks.length})</span>
