@@ -36,13 +36,16 @@ from __future__ import annotations
 
 import asyncio
 import json
+import os
 from contextlib import asynccontextmanager
+from typing import List
 
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 import team_coordinator as tc
+import spawn_util
 
 
 # ---------------------------------------------------------------------------
@@ -176,6 +179,14 @@ class RecoverBody(BaseModel):
     by_role: str = "PM"
 
 
+class LaunchBody(BaseModel):
+    goal: str
+    mode: str = "ask"
+    cli: str = "claude"
+    roles: List[str] = ["Backend", "Frontend", "QA"]
+    project_dir: str = ""
+
+
 # ---------------------------------------------------------------------------
 # GET endpoints
 # ---------------------------------------------------------------------------
@@ -289,6 +300,31 @@ def set_fact(body: SetFactBody):
 def recover_tasks(body: RecoverBody = RecoverBody()):
     result = tc.recover_tasks(stale_seconds=body.stale_seconds, by_role=body.by_role)
     return {"message": result}
+
+
+@app.post("/api/launch", status_code=200)
+def launch_team(body: LaunchBody):
+    goal = body.goal.strip()
+    if not goal:
+        raise HTTPException(status_code=400, detail="goal is required")
+
+    _VALID_MODES = {"ask", "same"}
+    _VALID_CLIS  = {"claude", "codex", "gemini", "cursor"}
+    mode = body.mode if body.mode in _VALID_MODES else "ask"
+    cli  = body.cli.lower() if body.cli.lower() in _VALID_CLIS else "claude"
+    roles = body.roles if body.roles else ["Backend", "Frontend", "QA"]
+
+    here = os.path.dirname(os.path.abspath(__file__))
+    project_dir = (
+        os.path.abspath(os.path.expanduser(body.project_dir))
+        if body.project_dir.strip()
+        else here
+    )
+    os.makedirs(project_dir, exist_ok=True)
+
+    seed   = spawn_util.pm_seed(goal, project_dir, roles, cli, mode=mode)
+    status = spawn_util.open_terminal_pm(cli, seed, project_dir)
+    return {"message": status, "project_dir": project_dir}
 
 
 # ---------------------------------------------------------------------------

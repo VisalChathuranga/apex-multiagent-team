@@ -4,6 +4,7 @@ import { AgentPanel } from "@/components/AgentPanel";
 import { TaskBoard } from "@/components/TaskBoard";
 import { ChatPanel } from "@/components/ChatPanel";
 import { ControlsPanel } from "@/components/ControlsPanel";
+import { LaunchWizard } from "@/components/LaunchWizard";
 import { useTeamState } from "@/hooks/useTeamState";
 
 export default function Home() {
@@ -19,7 +20,10 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-background p-4 md:p-6">
-      <h1 className="text-lg font-semibold mb-4">APEX Team Dashboard</h1>
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-lg font-semibold">APEX Team Dashboard</h1>
+        <LaunchWizard />
+      </div>
 
       <div className="grid gap-4 md:grid-cols-3">
         {/* Left column: agents + controls */}
