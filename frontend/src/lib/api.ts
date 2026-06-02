@@ -1,7 +1,7 @@
 // APEX Team API client types and fetch helpers
 
-export const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:7000";
-export const WS_URL = process.env.NEXT_PUBLIC_WS_URL ?? "ws://localhost:7000/ws/updates";
+export const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8561";
+export const WS_URL = process.env.NEXT_PUBLIC_WS_URL ?? "ws://localhost:8561/ws/updates";
 
 // ---- Data types ----
 

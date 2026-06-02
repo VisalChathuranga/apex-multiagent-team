@@ -41,8 +41,8 @@ const config: Config = {
           foreground: "hsl(var(--destructive-foreground))",
         },
         border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
-        ring: "hsl(var(--ring))",
+        input:  "hsl(var(--input))",
+        ring:   "hsl(var(--ring))",
         chart: {
           "1": "hsl(var(--chart-1))",
           "2": "hsl(var(--chart-2))",
@@ -55,6 +55,20 @@ const config: Config = {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      animation: {
+        "status-pulse": "status-pulse 1.6s ease-in-out infinite",
+        "fade-up":      "fade-up 0.2s ease-out",
+      },
+      keyframes: {
+        "status-pulse": {
+          "0%, 100%": { opacity: "1" },
+          "50%":       { opacity: "0.25" },
+        },
+        "fade-up": {
+          from: { opacity: "0", transform: "translateY(4px)" },
+          to:   { opacity: "1", transform: "translateY(0)" },
+        },
       },
     },
   },

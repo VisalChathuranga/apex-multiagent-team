@@ -26,10 +26,10 @@ Endpoints:
   WS     /ws/updates            push state snapshots when state changes
 
 Run standalone:
-  uvicorn api_server:app --host 0.0.0.0 --port 7000 --reload
+  uvicorn api_server:app --host 0.0.0.0 --port 8561 --reload
 
 Or from Python:
-  import uvicorn; uvicorn.run("api_server:app", host="0.0.0.0", port=7000)
+  import uvicorn; uvicorn.run("api_server:app", host="0.0.0.0", port=8561)
 """
 
 from __future__ import annotations
@@ -352,4 +352,4 @@ async def ws_updates(ws: WebSocket):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("api_server:app", host="0.0.0.0", port=7000, reload=False)
+    uvicorn.run("api_server:app", host="0.0.0.0", port=8561, reload=False)

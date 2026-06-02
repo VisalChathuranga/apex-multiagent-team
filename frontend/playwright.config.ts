@@ -5,14 +5,14 @@ import { join } from "path";
  * E2E tests for the APEX Team dashboard.
  *
  * Playwright automatically starts two servers:
- *   - Test API on :7001 (TEAM_STATE_FILE=e2e_test_state.json, isolated from live board)
- *   - Next.js on :3001 pointing at the test API
+ *   - Test API on :8563 (TEAM_STATE_FILE=e2e_test_state.json, isolated from live board)
+ *   - Next.js on :8564 pointing at the test API
  *
  * The globalSetup writes a clean e2e_test_state.json before each suite run.
- * The live APEX board on :7000 / :3000 is never touched.
+ * The live APEX board on :8561 / :8562 is never touched.
  */
-const E2E_API_PORT = 7001;
-const E2E_NEXT_PORT = 3001;
+const E2E_API_PORT = 8563;
+const E2E_NEXT_PORT = 8564;
 
 export default defineConfig({
   testDir: "./e2e",

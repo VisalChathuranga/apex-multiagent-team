@@ -70,7 +70,7 @@ Every agent shares one file-locked state file — they post messages, pick up ta
 │   ┌──────────────┐    REST/WS    ┌──────────────────────────┐  │
 │   │  Next.js     │◀────────────▶│  FastAPI  api_server.py   │  │
 │   │  Dashboard   │              │  POST /api/launch          │  │
-│   │  :3000       │              │  GET  /api/state           │  │
+│   │  :8562       │              │  GET  /api/state           │  │
 │   └──────────────┘              │  WS   /ws/updates          │  │
 │                                 └────────────┬─────────────┘  │
 │                                              │                  │
@@ -189,13 +189,13 @@ Without these, APEX falls back to a built-in keyword map — still fully functio
 ```bash
 cd frontend
 npm install
-npm run dev        # starts at http://localhost:3000
+npm run dev        # starts at http://localhost:8562
 ```
 
 In a second terminal, start the API server:
 ```bash
 # from the apex-team root
-uvicorn api_server:app --host 0.0.0.0 --port 7000 --reload
+uvicorn api_server:app --host 0.0.0.0 --port 8561 --reload
 ```
 
 ---
@@ -204,7 +204,7 @@ uvicorn api_server:app --host 0.0.0.0 --port 7000 --reload
 
 ### Option A — Web Dashboard (recommended)
 
-1. Open **http://localhost:3000** in your browser
+1. Open **http://localhost:8562** in your browser
 2. Click **Launch Team** in the top-right corner
 3. Fill in the wizard:
    - **Goal** — describe what you want built
@@ -344,7 +344,7 @@ Copy `config.example.env` to `.env` and adjust as needed:
 | Agents don't share tasks | All agents must use the **same** `TEAM_STATE_FILE` (set once in the global registration) |
 | `apex_recommend_skills` returns fallback only | Skill libraries not installed — set `APEX_ANTIGRAVITY_DIR` / `APEX_CYBERSEC_DIR` |
 | Tokens spiking | Lower `MAX_AGENTS` and `MSG_ROTATE_LIMIT`; keep debate gated to hard decisions |
-| Dashboard shows "Connecting…" | Start `api_server.py` on port 7000 and ensure `NEXT_PUBLIC_API_URL` matches |
+| Dashboard shows "Connecting…" | Start `api_server.py` on port 8561 and ensure `NEXT_PUBLIC_API_URL` matches |
 | Frontend build errors | `cd frontend && npm install` then `npm run dev` |
 
 ---
