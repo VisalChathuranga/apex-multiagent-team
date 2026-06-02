@@ -1,161 +1,254 @@
 <div align="center">
 
+<img src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=700&size=42&duration=3000&pause=1000&color=FF6B35&center=true&vCenter=true&width=900&lines=APEX+TEAM;Autonomous+AI+Orchestrator;Plan.+Code.+Test.+Ship." alt="APEX Team" />
+
+<br />
+
 ```
-   _   ___ _____  __  ___ ___   _   __  __
-  /_\ | _ \ __\ \/ / |_   _| __| | |    |
- / _ \|  _/ _| >  <    | | | _|/ _ |  |||
-/_/ \_\_| |___/_/\_\   |_| |___\__,_|_|_|
+
+   █████╗ ██████╗ ███████╗██╗  ██╗    ████████╗███████╗ █████╗ ███╗   ███╗
+  ██╔══██╗██╔══██╗██╔════╝╚██╗██╔╝    ╚══██╔══╝██╔════╝██╔══██╗████╗ ████║
+  ███████║██████╔╝█████╗   ╚███╔╝        ██║   █████╗  ███████║██╔████╔██║
+  ██╔══██║██╔═══╝ ██╔══╝   ██╔██╗        ██║   ██╔══╝  ██╔══██║██║╚██╔╝██║
+  ██║  ██║██║     ███████╗██╔╝ ██╗       ██║   ███████╗██║  ██║██║ ╚═╝ ██║
+  ╚═╝  ╚═╝╚═╝     ╚══════╝╚═╝  ╚═╝       ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝     ╚═╝
+
 ```
 
-# APEX Team
+### 🚀 The Self-Coordinating AI Engineering Team
 
-### Autonomous Multi-Agent AI Orchestrator
+**One terminal. One sentence. A full squad of AI specialists plans, codes, tests, and ships — autonomously.**
 
-**Open one terminal. Say what you want built. A full team of AI agents plans, codes, tests, and ships it — together.**
+<br />
 
-[![Python](https://img.shields.io/badge/Python-3.8%2B-3776AB?style=flat-square&logo=python&logoColor=white)](https://python.org)
-[![Next.js](https://img.shields.io/badge/Next.js-14-000000?style=flat-square&logo=nextdotjs&logoColor=white)](https://nextjs.org)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.111-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
-[![MCP](https://img.shields.io/badge/MCP-81%20tools-orange?style=flat-square)](https://github.com/anthropics/mcp)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)](LICENSE)
-[![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-blue?style=flat-square)]()
+[![Python](https://img.shields.io/badge/Python-3.8+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
+[![Next.js](https://img.shields.io/badge/Next.js-14-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)](https://nextjs.org)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.111-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
+[![MCP](https://img.shields.io/badge/MCP-81_tools-FF6B35?style=for-the-badge)](https://github.com/anthropics/mcp)
+[![License](https://img.shields.io/badge/License-MIT-FFD93D?style=for-the-badge)](LICENSE)
+
+[![Platform](https://img.shields.io/badge/Windows-0078D6?style=flat-square&logo=windows&logoColor=white)]()
+[![Platform](https://img.shields.io/badge/macOS-000000?style=flat-square&logo=apple&logoColor=white)]()
+[![Platform](https://img.shields.io/badge/Linux-FCC624?style=flat-square&logo=linux&logoColor=black)]()
+[![Stars](https://img.shields.io/badge/⭐_Star_us-on_GitHub-181717?style=flat-square&logo=github)]()
+[![PRs Welcome](https://img.shields.io/badge/PRs-Welcome-brightgreen?style=flat-square)]()
+
+<br />
+
+[**🎯 Quick Start**](#-installation) • [**📖 Docs**](FEATURES_GUIDE.md) • [**🤖 Agents**](#-meet-the-team) • [**🛠 Tools**](#-apex-intelligence-tools) • [**💬 Discord**]() • [**🐛 Issues**]()
+
+---
 
 </div>
 
+## 🌟 What is APEX?
+
+APEX is a **self-coordinating AI team system** — think of it as a project manager that hires, briefs, and supervises an entire engineering team of AI specialists, all running on your machine.
+
+> You describe a goal. APEX opens a **Project Manager terminal** that automatically spawns specialist agent terminals (Backend, Frontend, QA, DevOps, Security…), divides the work, and drives everyone to completion — without you lifting another finger.
+
+<div align="center">
+
+```mermaid
+graph TD
+    U[👤 You] -->|python apex.py| PM[🎯 PM Terminal]
+    PM --> B[⚙️ APEX-Backend<br/>claude]
+    PM --> F[🎨 APEX-Frontend<br/>codex]
+    PM --> Q[🧪 APEX-QA<br/>cursor]
+    PM --> D[🚀 APEX-DevOps<br/>gemini]
+    B <--> S[(📦 shared_state.json<br/>channel · board · debate · memory)]
+    F <--> S
+    Q <--> S
+    D <--> S
+
+    style U fill:#FF6B35,stroke:#fff,color:#fff
+    style PM fill:#004E89,stroke:#fff,color:#fff
+    style S fill:#1A659E,stroke:#fff,color:#fff
+    style B fill:#2A9D8F,stroke:#fff,color:#fff
+    style F fill:#E76F51,stroke:#fff,color:#fff
+    style Q fill:#F4A261,stroke:#fff,color:#fff
+    style D fill:#9B5DE5,stroke:#fff,color:#fff
+```
+
+</div>
+
+Every agent shares one file-locked state file — they **post messages, pick up tasks, debate high-stakes decisions, and report progress in real-time** through a sleek **live web dashboard**.
+
 ---
 
-## What is APEX?
+## ✨ Why APEX?
 
-APEX is a **self-coordinating AI team system**. You describe a goal; APEX opens a Project Manager terminal that automatically spawns specialist agent terminals (Backend, Frontend, QA, DevOps, etc.), divides the work, and drives the whole team to completion — without further input from you.
+<table>
+<tr>
+<td width="50%" valign="top">
 
+### 🚀 **One-Command Magic**
+```bash
+python apex.py
 ```
-you  ──▶  python apex.py  ──▶  PM terminal opens
-                                    │
-              ┌─────────────────────┼─────────────────────┐
-              ▼                     ▼                       ▼
-       APEX-Backend           APEX-Frontend            APEX-QA
-       (claude)               (codex)                  (cursor)
-              └──────── shared_state.json ────────────────┘
-                   channel · board · debate · memory
-```
+Type a goal. Watch a team self-assemble.
 
-Every agent shares one file-locked state file — they post messages, pick up tasks, debate high-stakes decisions, and report progress in real time through the **live web dashboard**.
+### 🤖 **14 Specialist Agents**
+Architect, Backend, Frontend, DBA, AI, QA, Security, DevOps, and more — each with a tailored persona.
 
----
+### 🔀 **Mix Any CLI**
+Claude Code, Codex, Gemini, Cursor — agents can each run on a different service.
 
-## ✨ Features
+### 🛠 **81 MCP Tools**
+73 coordination tools + 8 intelligence tools on a single MCP server.
 
-| | |
-|---|---|
-| 🚀 **One-command launch** | `python apex.py` or use the web UI — type a goal and the team self-assembles |
-| 🤖 **14 specialist agents** | architect, analyst, backend, frontend, DBA, AI integrator, tester, reviewer, perf-tuner, security auditor, pen tester, DFIR analyst, writer, devops |
-| 🔀 **Any CLI mix** | Claude Code, Codex CLI, Gemini CLI, Cursor — agents can each run on a different service |
-| 🛠 **81 MCP tools** | 73 coordination tools + 8 APEX intelligence tools, served on one MCP server |
-| 🧠 **Per-agent intelligence** | Skill routing over 2 195+ skills, cached framework-correct prompts, 17 specialist personas |
-| 📊 **Live dashboard** | Next.js web UI: task board, chat feed, agent roster, metrics, one-click team launch |
-| 💬 **Structured debate** | Propose → critique → revise → vote → judge — gated to high-stakes decisions only |
-| 💾 **Token-efficient** | Compact shared summary reload; padding-stripped cached prompts; rotation limits |
-| 🔄 **Crash recovery** | PM pings silent agents, recovers stale tasks, auto-backups every 15 writes |
-| 🔗 **Git-safe** | Per-agent worktrees, conflict detection, task-to-commit linking |
-| 📣 **Completion webhook** | Slack / Discord / Teams notify when the board clears |
+</td>
+<td width="50%" valign="top">
+
+### 🧠 **Smart Skill Routing**
+Routes across **2,195+ skills** with cached, framework-correct prompts and 17 specialist personas.
+
+### 📊 **Live Web Dashboard**
+Next.js UI: task board, chat feed, agent roster, metrics, one-click team launch.
+
+### 💬 **Structured Debate**
+Propose → critique → revise → vote → judge. Gated to high-stakes decisions only.
+
+### 💾 **Token-Efficient**
+Compact shared summaries, padding-stripped prompts, smart rotation — 30-70% smaller.
+
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+
+### 🔄 **Crash Recovery**
+PM pings silent agents, recovers stale tasks, auto-backups every 15 writes.
+
+</td>
+<td width="50%" valign="top">
+
+### 🔗 **Git-Safe + Notify**
+Per-agent worktrees, conflict detection, task-to-commit linking. Slack/Discord/Teams webhooks on completion.
+
+</td>
+</tr>
+</table>
 
 ---
 
 ## 🏗 Architecture
 
+<div align="center">
+
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                         APEX System                             │
-│                                                                 │
-│   ┌──────────────┐    REST/WS    ┌──────────────────────────┐  │
-│   │  Next.js     │◀────────────▶│  FastAPI  api_server.py   │  │
-│   │  Dashboard   │              │  POST /api/launch          │  │
-│   │  :8562       │              │  GET  /api/state           │  │
-│   └──────────────┘              │  WS   /ws/updates          │  │
-│                                 └────────────┬─────────────┘  │
-│                                              │                  │
-│                                     spawn_util.py               │
-│                                              │                  │
-│              ┌───────────────────────────────▼──────────────┐  │
-│              │            apex_v25.py  (MCP server)          │  │
-│              │   81 tools: coordination + APEX intelligence   │  │
-│              │   team_coordinator.py (base 73 tools)          │  │
-│              └──────────────────┬────────────────────────────┘  │
-│                                 │  shared_state.json             │
-│         ┌───────────────────────┼────────────────────┐          │
-│         ▼                       ▼                     ▼          │
-│   ┌───────────┐          ┌────────────┐        ┌──────────┐     │
-│   │ APEX-PM   │          │ APEX-Agent │  ···   │ APEX-Agent│     │
-│   │ (any CLI) │          │ (any CLI)  │        │ (any CLI) │     │
-│   └───────────┘          └────────────┘        └──────────┘     │
-└─────────────────────────────────────────────────────────────────┘
+╔═════════════════════════════════════════════════════════════════════╗
+║                         APEX SYSTEM                                 ║
+╠═════════════════════════════════════════════════════════════════════╣
+║                                                                     ║
+║   ┌──────────────┐    REST/WS    ┌──────────────────────────────┐   ║
+║   │  Next.js 14  │◀────────────▶│  FastAPI · api_server.py     │   ║
+║   │  Dashboard   │               │  POST /api/launch            │   ║
+║   │  :8562       │               │  GET  /api/state             │   ║
+║   └──────────────┘               │  WS   /ws/updates            │   ║
+║                                  └──────────────┬───────────────┘   ║
+║                                                 │                   ║
+║                                         spawn_util.py               ║
+║                                                 │                   ║
+║              ┌──────────────────────────────────▼───────────────┐   ║
+║              │            apex_v25.py  ·  MCP Server            │   ║
+║              │   81 tools  · coordination + APEX intelligence   │   ║
+║              │   team_coordinator.py  · base 73 tools           │   ║
+║              └──────────────────┬───────────────────────────────┘   ║
+║                                 │  shared_state.json                ║
+║         ┌───────────────────────┼─────────────────────┐             ║
+║         ▼                       ▼                     ▼             ║
+║   ┌───────────┐          ┌────────────┐        ┌───────────┐        ║
+║   │ APEX-PM   │          │ APEX-Agent │  ···   │ APEX-Agent│        ║
+║   │ (any CLI) │          │ (any CLI)  │        │ (any CLI) │        ║
+║   └───────────┘          └────────────┘        └───────────┘        ║
+╚═════════════════════════════════════════════════════════════════════╝
 ```
 
-| Layer | What it does |
-|---|---|
-| **L0 — Token discipline** | Budget directive injected per task via `apex_token_budget` |
-| **L1 — Shared brain** | Write-once decisions; agents reload a compact summary (the main token saver) |
-| **L2 — Intelligence** | 2 195+ skill routing + framework-correct, padding-free, hash-cached prompts |
-| **L3 — Coordination** | Live channel, task board, gated debate, auto-spawn, crash recovery |
+</div>
+
+| Layer | Role | What It Does |
+|:---:|:---|:---|
+| **L0** | 🪙 Token Discipline | Budget directive injected per task via `apex_token_budget` |
+| **L1** | 🧠 Shared Brain | Write-once decisions; agents reload compact summaries (the big token saver) |
+| **L2** | 🎯 Intelligence | Skill routing across 2,195+ skills + cached, padding-free prompts |
+| **L3** | 🔀 Coordination | Live channel, task board, gated debate, auto-spawn, crash recovery |
 
 ---
 
 ## 📋 Prerequisites
 
-Before installing, make sure you have:
+Make sure you have these installed:
 
-- **Python 3.8 or newer** — [download](https://python.org/downloads)
-- **Node.js 18+** — [download](https://nodejs.org) *(for the web dashboard)*
-- **At least one agent CLI** installed and on your PATH:
+| Requirement | Version | Get It |
+|:---|:---:|:---|
+| 🐍 **Python** | 3.8+ | [python.org/downloads](https://python.org/downloads) |
+| 📦 **Node.js** | 18+ | [nodejs.org](https://nodejs.org) *(for the web dashboard)* |
+| 🤖 **At least one CLI** | latest | see below ⬇️ |
 
-| CLI | Install |
-|---|---|
-| [Claude Code](https://claude.ai/code) | Follow Anthropic's install guide |
-| Codex CLI | `npm install -g @openai/codex` |
-| Gemini CLI | `npm install -g @google/gemini-cli` |
-| Cursor Agent | Install from [cursor.sh](https://cursor.sh) |
+### Supported Agent CLIs
 
-> You only need **one** CLI to get started. You can mix them later.
+| CLI | Install Command | Provider |
+|:---|:---|:---:|
+| **Claude Code** | follow [Anthropic's guide](https://claude.ai/code) | Anthropic |
+| **Codex CLI** | `npm install -g @openai/codex` | OpenAI |
+| **Gemini CLI** | `npm install -g @google/gemini-cli` | Google |
+| **Cursor Agent** | install from [cursor.sh](https://cursor.sh) | Cursor |
+
+> 💡 You only need **one** CLI to get started. Mix them later for the full experience.
 
 ---
 
 ## 🚀 Installation
 
-### 1 — Clone the repository
+### 1️⃣ Clone the Repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/apex-team.git
+git clone https://github.com/VisalChathuranga/apex-multiagent-team.git
 cd apex-team
 ```
 
-### 2 — Install Python dependencies
+### 2️⃣ Install Python Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3 — Register the MCP server
+### 3️⃣ Register the MCP Server
 
-**macOS / Linux:**
+<table>
+<tr>
+<td>
+
+**🍎 macOS / 🐧 Linux**
 ```bash
 bash install.sh
 ```
 
-**Windows (PowerShell):**
+</td>
+<td>
+
+**🪟 Windows (PowerShell)**
 ```powershell
 ./install.ps1
 ```
 
-The installer registers `apex_v25.py` globally with Claude Code and prints the config snippets for Codex / Gemini / Cursor.
+</td>
+</tr>
+</table>
 
-**Verify the registration worked:**
+The installer registers `apex_v25.py` globally with Claude Code and prints config snippets for Codex / Gemini / Cursor.
+
+**✅ Verify the registration:**
 ```bash
 claude mcp list
-# you should see "team" with 81 tools
+# Expected: "team" with 81 tools
 ```
 
 <details>
-<summary>Manual registration (if you skip the installer)</summary>
+<summary><b>🔧 Manual registration (if you skip the installer)</b></summary>
+
+<br />
 
 ```bash
 claude mcp add team -s user -- \
@@ -167,32 +260,37 @@ claude mcp add team -s user -- \
   python "$PWD/apex_v25.py"
 ```
 
-Restart your CLI client after registering. For Codex / Cursor / Gemini, copy the ready-made config blocks from `examples/` into each client's config — just replace `/ABS/PATH`.
+> Restart your CLI client after registering. For Codex / Cursor / Gemini, copy the ready-made config blocks from `examples/` — just replace `/ABS/PATH`.
 
 </details>
 
 <details>
-<summary>Optional — install skill libraries for full skill routing</summary>
+<summary><b>🎁 Optional — Install skill libraries for full routing</b></summary>
+
+<br />
 
 ```bash
+# Antigravity skills (2,000+)
 npx antigravity-awesome-skills          # → ~/.gemini/antigravity/skills
+
+# Cybersecurity skills (195+)
 git clone https://github.com/mukul975/Anthropic-Cybersecurity-Skills.git \
   ~/.gemini/cybersecurity-skills
 ```
 
-Without these, APEX falls back to a built-in keyword map — still fully functional.
+> Without these, APEX falls back to a built-in keyword map — still fully functional, just less precise.
 
 </details>
 
-### 4 — Set up the web dashboard
+### 4️⃣ Set Up the Web Dashboard
 
 ```bash
 cd frontend
 npm install
-npm run dev        # starts at http://localhost:8562
+npm run dev        # → http://localhost:8562
 ```
 
-In a second terminal, start the API server:
+In a **second terminal**, start the API server:
 ```bash
 # from the apex-team root
 uvicorn api_server:app --host 0.0.0.0 --port 8561 --reload
@@ -202,45 +300,62 @@ uvicorn api_server:app --host 0.0.0.0 --port 8561 --reload
 
 ## ▶️ Usage
 
-### Option A — Web Dashboard (recommended)
+### 🎨 Option A — Web Dashboard *(recommended)*
 
-1. Open **http://localhost:8562** in your browser
-2. Click **Launch Team** in the top-right corner
-3. Fill in the wizard:
+1. 🌐 Open **http://localhost:8562** in your browser
+2. 🖱️ Click **Launch Team** in the top-right corner
+3. 📝 Fill in the wizard:
    - **Goal** — describe what you want built
-   - **Mode** — ASK (each terminal asks which CLI) or SAME (all use one CLI)
-   - **CLI tool** — claude / codex / gemini / cursor
-   - **Project directory** — where to build (blank = current dir)
+   - **Mode** — `ASK` (per-terminal CLI choice) or `SAME` (one CLI for all)
+   - **CLI** — claude / codex / gemini / cursor
+   - **Project Directory** — where to build *(blank = current dir)*
    - **Agents** — tick the checkboxes for the specialists you need
-4. Click **Launch** — the PM terminal opens and the team self-assembles
+4. 🚀 Hit **Launch** — the PM terminal opens and the team self-assembles
 
-![Dashboard screenshot placeholder](https://via.placeholder.com/800x400/1a1a2e/ffffff?text=APEX+Team+Dashboard)
+<div align="center">
 
-### Option B — Terminal
+![Dashboard](https://via.placeholder.com/900x450/1a1a2e/FF6B35?text=APEX+Team+Dashboard)
 
-**ASK mode** — each agent terminal asks which CLI to use (mix freely):
+</div>
+
+### 💻 Option B — Terminal
+
+<table>
+<tr>
+<td width="50%" valign="top">
+
+**🔀 ASK mode** — each agent picks its CLI
 ```bash
 # macOS / Linux
-./apex-ask.sh "Build a REST API with user auth and a React dashboard"
+./apex-ask.sh "Build a REST API with auth + React dashboard"
 
 # Windows
-apex-ask.bat "Build a REST API with user auth and a React dashboard"
+apex-ask.bat "Build a REST API..."
 
-# or directly
-python apex.py --mode ask "Build a REST API with user auth and a React dashboard"
+# Direct
+python apex.py --mode ask "..."
 ```
 
-**SAME mode** — all agents use one CLI (no prompts):
+</td>
+<td width="50%" valign="top">
+
+**🎯 SAME mode** — all agents on one CLI
 ```bash
-./apex-same.sh --cli claude "Build a REST API with user auth and a React dashboard"
+# macOS / Linux
+./apex-same.sh --cli claude "..."
 
 # Windows
 apex-same.bat --cli claude "..."
 
+# Direct
 python apex.py --mode same --cli claude "..."
 ```
 
-**Interactive mode** — step-by-step prompts:
+</td>
+</tr>
+</table>
+
+**💬 Interactive mode** — guided step-by-step:
 ```bash
 python apex.py
 #  Command type — (1) ASK / (2) SAME : 1
@@ -250,102 +365,137 @@ python apex.py
 #  Worker roles                      : Backend,Frontend,QA
 ```
 
-### What happens automatically
+### 🎬 What Happens Automatically
 
 ```
-1. PM terminal opens on your chosen CLI
-2. PM joins the team, detects the stack, calls apex_orchestrate()
-3. apex_orchestrate() opens one terminal per agent role
-4. Every agent auto-joins the shared team, reads the goal, works the board
-5. PM assigns tasks (by skill), monitors progress, runs debates on hard calls
-6. When the board clears: export_report, webhook_notify "project complete"
+1. 🎯 PM terminal opens on your chosen CLI
+2. 🧠 PM joins the team, detects the stack, calls apex_orchestrate()
+3. 🚀 apex_orchestrate() opens one terminal per agent role
+4. 🤝 Every agent auto-joins, reads the goal, works the board
+5. 📋 PM assigns tasks (by skill), monitors progress, runs debates on hard calls
+6. ✅ When the board clears: export_report + webhook_notify "project complete"
 ```
 
 ---
 
-## 🤖 Available Agents
+## 🤖 Meet the Team
 
-Select any combination when launching:
+Select any combination at launch:
 
-| Agent | Specialisation |
-|---|---|
-| `architect` | C4 diagrams, ADRs, system design, tech-stack decisions |
-| `analyst` | User stories, acceptance criteria, MVP scope |
-| `backend` | APIs & server logic — Node / Go / Python / Rust / .NET |
-| `frontend` | UI & components — Next.js, React, Vue, SvelteKit, Astro |
-| `dba` | Schemas, migrations, indexes, query optimisation |
-| `ai-integrator` | LLM / RAG pipelines, vector stores, AI service clients |
-| `tester` | Unit, integration & E2E — pytest / jest / Playwright |
-| `reviewer` | Code review — SOLID, DRY, readability, refactor suggestions |
-| `perf-tuner` | Profiling, latency, N+1 hunting, bundle-size triage |
-| `security-auditor` | OWASP Top 10, CVEs, weak auth/crypto, secrets — read-only |
-| `pen-tester` | Offensive testing, exploit validation — read-only |
-| `dfir-analyst` | Incident response, log analysis, Sigma / YARA detection rules |
-| `writer` | README, CHANGELOG, API docs, release notes |
-| `devops` | CI/CD pipelines, Dockerfiles, GitHub Actions, Vercel / AWS |
+<table>
+<tr>
+<td width="33%" valign="top">
+
+#### 🏛 **Design & Planning**
+- 🏗 `architect` — C4 diagrams, ADRs, system design
+- 📊 `analyst` — user stories, acceptance criteria, MVP scope
+
+#### 🛠 **Build**
+- ⚙️ `backend` — Node / Go / Python / Rust / .NET
+- 🎨 `frontend` — Next.js, React, Vue, SvelteKit, Astro
+- 🗄 `dba` — schemas, migrations, indexes, query opt
+- 🧠 `ai-integrator` — LLM, RAG, vector stores
+
+</td>
+<td width="33%" valign="top">
+
+#### 🧪 **Quality**
+- ✅ `tester` — pytest / jest / Playwright
+- 👀 `reviewer` — SOLID, DRY, refactor suggestions
+- ⚡ `perf-tuner` — profiling, N+1, bundle triage
+
+#### 🛡 **Security** *(read-only)*
+- 🔒 `security-auditor` — OWASP, CVEs, secrets
+- 🎯 `pen-tester` — offensive testing
+- 🚨 `dfir-analyst` — IR, Sigma / YARA detection
+
+</td>
+<td width="33%" valign="top">
+
+#### 📚 **Ship**
+- ✍️ `writer` — README, CHANGELOG, API docs
+- 🚀 `devops` — CI/CD, Docker, Actions, Vercel / AWS
+
+<br />
+
+> 💡 **Pro tip:** Start small. Pick 3-4 agents for a focused build, then add specialists as needs emerge.
+
+</td>
+</tr>
+</table>
 
 ---
 
-## 🧰 APEX Intelligence Tools (8)
+## 🧰 APEX Intelligence Tools
 
-| Tool | What it does |
-|---|---|
-| `apex_orchestrate` | Record goal + spawn the full worker team in one call |
-| `apex_spawn` | Open new terminal(s) for any role on any CLI, auto-joining the team |
-| `apex_build_prompt` ★ | Budget + shared context + persona + skills → optimised, cached prompt |
-| `apex_recommend_skills` | Scan 2 195+ skill catalogs; pick ≤ 5 for a role + task |
-| `apex_persona` | Specialist body + prompting framework for a given role |
-| `apex_detect_stack` | Polyglot stack detection (Next.js-priority frontend + backend lang) |
-| `apex_token_budget` | L0 budget directive for a task |
-| `apex_status` | Show loaded catalogs, active personas, cache stats |
+The **8 brain tools** that make autonomy possible:
 
-Plus **73 base coordination tools**: `join_team`, `post_message`, `wait_for_message`, `add_task`, `assign_work`, `view_board`, `start_debate` / `judge_debate`, `save_summary` / `load_summary`, `report_finding`, `brain_add`, `start_dashboard`, `export_report`, … See `FEATURES_GUIDE.md` for the full reference.
+| Tool | What It Does |
+|:---|:---|
+| 🎯 `apex_orchestrate` | Record the goal + spawn the full worker team in one call |
+| 🚀 `apex_spawn` | Open new terminal(s) for any role on any CLI, auto-joining the team |
+| ⚡ `apex_build_prompt` ★ | Budget + shared context + persona + skills → optimised, cached prompt |
+| 🔍 `apex_recommend_skills` | Scan 2,195+ skill catalogs; pick ≤ 5 for a role + task |
+| 🎭 `apex_persona` | Specialist body + prompting framework for a given role |
+| 🔎 `apex_detect_stack` | Polyglot stack detection (Next.js-priority frontend + backend lang) |
+| 🪙 `apex_token_budget` | L0 budget directive for a task |
+| 📊 `apex_status` | Show loaded catalogs, active personas, cache stats |
+
+Plus **73 base coordination tools**: `join_team`, `post_message`, `wait_for_message`, `add_task`, `assign_work`, `view_board`, `start_debate` / `judge_debate`, `save_summary` / `load_summary`, `report_finding`, `brain_add`, `start_dashboard`, `export_report`, … See [`FEATURES_GUIDE.md`](FEATURES_GUIDE.md) for the full reference.
 
 ---
 
 ## ⚙️ Configuration
 
-Copy `config.example.env` to `.env` and adjust as needed:
+Copy `config.example.env` → `.env` and adjust:
 
 | Variable | Default | Description |
-|---|---|---|
-| `TEAM_STATE_FILE` | `./shared_state.json` | Shared state file path (all agents must point here) |
+|:---|:---:|:---|
+| `TEAM_STATE_FILE` | `./shared_state.json` | Shared state path *(must match across agents)* |
 | `MAX_AGENTS` | `4` | Cap on concurrent live agents |
-| `MSG_ROTATE_LIMIT` | `800` | Channel message rotation limit (keeps context small) |
+| `MSG_ROTATE_LIMIT` | `800` | Channel message rotation limit |
 | `BACKUP_EVERY` | `15` | Auto-backup every N writes |
 | `BACKUP_KEEP` | `10` | Number of backups to retain |
 | `DASHBOARD_PORT` | `8765` | Legacy MCP dashboard port |
 | `DASHBOARD_HOST` | `127.0.0.1` | Set `0.0.0.0` for LAN access |
 | `APEX_CACHE_TTL` | `3600` | Prompt cache TTL in seconds |
-| `APEX_PROMPT_ENGINEER` | `1` | Strip padding from prompts (30–70% smaller) |
-| `WEBHOOK_URL` | *(unset)* | Slack / Discord / Teams webhook for completion notify |
-| `OBSIDIAN_VAULT` | *(unset)* | Vault path for `obsidian_sync` |
+| `APEX_PROMPT_ENGINEER` | `1` | Strip padding from prompts (30-70% smaller) |
+| `WEBHOOK_URL` | *unset* | Slack / Discord / Teams webhook for completion |
+| `OBSIDIAN_VAULT` | *unset* | Vault path for `obsidian_sync` |
 
 ---
 
 ## 🛡️ Safety Notes
 
-> Agents run with **`--dangerously-skip-permissions`** so they work unattended. Use only in trusted, non-production environments.
+> ⚠️ Agents run with `--dangerously-skip-permissions` so they work unattended.
+> **Use only in trusted, non-production environments.**
 
-- Edit `_CLI_TEMPLATES` in `spawn_util.py` (or set `APEX_CLI_*` env vars) to re-enable confirmation prompts.
-- Ask the PM to *"use worktrees"* — `suggest_worktrees` gives each agent its own git branch so they never overwrite each other.
-- `MAX_AGENTS` guards against runaway spawning — raise it deliberately.
-- Test without opening any terminal windows: `set APEX_SPAWN_DRYRUN=1` (Windows) / `export APEX_SPAWN_DRYRUN=1` (Unix).
+- 🔧 Edit `_CLI_TEMPLATES` in `spawn_util.py` (or set `APEX_CLI_*` env vars) to re-enable confirmations
+- 🌿 Ask the PM to *"use worktrees"* — `suggest_worktrees` gives each agent its own git branch
+- 🚧 `MAX_AGENTS` guards against runaway spawning — raise it deliberately
+- 🧪 Test without opening terminals: `APEX_SPAWN_DRYRUN=1`
 
 ---
 
 ## 🔧 Troubleshooting
 
+<details>
+<summary><b>🐛 Common Issues & Fixes</b></summary>
+
+<br />
+
 | Symptom | Fix |
-|---|---|
-| `claude: command not found` in spawned terminal | Install the CLI and ensure it is on PATH; restart |
+|:---|:---|
+| `claude: command not found` in spawned terminal | Install the CLI and ensure it's on PATH; restart |
 | No new terminal opens on Linux | Install `gnome-terminal`, `konsole`, `xterm`, or `tmux` |
-| `team` not listed / 0 tools after `claude mcp list` | Re-run the installer; registration must point at `apex_v25.py`; restart client |
-| Agents don't share tasks | All agents must use the **same** `TEAM_STATE_FILE` (set once in the global registration) |
+| `team` not listed / 0 tools after `claude mcp list` | Re-run installer; must point at `apex_v25.py`; restart client |
+| Agents don't share tasks | All agents must use the **same** `TEAM_STATE_FILE` |
 | `apex_recommend_skills` returns fallback only | Skill libraries not installed — set `APEX_ANTIGRAVITY_DIR` / `APEX_CYBERSEC_DIR` |
-| Tokens spiking | Lower `MAX_AGENTS` and `MSG_ROTATE_LIMIT`; keep debate gated to hard decisions |
-| Dashboard shows "Connecting…" | Start `api_server.py` on port 8561 and ensure `NEXT_PUBLIC_API_URL` matches |
-| Frontend build errors | `cd frontend && npm install` then `npm run dev` |
+| Tokens spiking | Lower `MAX_AGENTS` and `MSG_ROTATE_LIMIT`; gate debate to hard decisions |
+| Dashboard shows "Connecting…" | Start `api_server.py` on `:8561`; ensure `NEXT_PUBLIC_API_URL` matches |
+| Frontend build errors | `cd frontend && npm install && npm run dev` |
+
+</details>
 
 ---
 
@@ -354,70 +504,87 @@ Copy `config.example.env` to `.env` and adjust as needed:
 ```
 apex-team/
 │
-├── apex.py                  ← one-command launcher (--mode ask|same)
-├── apex-ask.sh / .bat       ← shortcut: ASK mode
-├── apex-same.sh / .bat      ← shortcut: SAME mode
+├── 🚀 apex.py                  # one-command launcher (--mode ask|same)
+├── 📜 apex-ask.sh / .bat       # shortcut: ASK mode
+├── 📜 apex-same.sh / .bat      # shortcut: SAME mode
 │
-├── apex_v25.py              ← MCP server: base + APEX intelligence (81 tools)
-├── team_coordinator.py      ← base coordination engine (73 tools)
-├── spawn_util.py            ← cross-platform terminal spawning + seed prompts
-├── agent_boot.py            ← runs inside each new terminal; selects/launches CLI
-├── api_server.py            ← FastAPI REST + WebSocket bridge for the dashboard
-├── launch_agent.py          ← thin wrapper that calls the chosen CLI with a seed
+├── 🧠 apex_v25.py              # MCP server: base + intelligence (81 tools)
+├── 🔗 team_coordinator.py      # base coordination engine (73 tools)
+├── 🪟 spawn_util.py            # cross-platform terminal spawning
+├── 🤖 agent_boot.py            # runs inside each new terminal
+├── 🌐 api_server.py            # FastAPI REST + WebSocket bridge
+├── ⚡ launch_agent.py          # thin CLI wrapper with seed prompt
 │
-├── frontend/                ← Next.js 14 web dashboard
+├── 🎨 frontend/                # Next.js 14 web dashboard
 │   └── src/
-│       ├── app/             ← pages (page.tsx = main dashboard)
+│       ├── app/                # pages (page.tsx = main dashboard)
 │       └── components/
 │           ├── AgentPanel.tsx
 │           ├── ChatPanel.tsx
 │           ├── ControlsPanel.tsx
-│           ├── LaunchWizard.tsx   ← team launch dialog (checkboxes, dropdowns)
+│           ├── LaunchWizard.tsx
 │           └── TaskBoard.tsx
 │
-├── roles/                   ← role playbooks (pm, backend, frontend, qa)
-├── seeds/                   ← auto-generated seed prompt files per agent
-├── second_brain/            ← persistent brain notes (brain_* tools)
-├── examples/                ← MCP config snippets for Codex / Cursor / Gemini
+├── 📋 roles/                   # role playbooks
+├── 🌱 seeds/                   # auto-generated seed prompts
+├── 💾 second_brain/            # persistent brain notes
+├── 📦 examples/                # MCP config snippets
 │
-├── install.sh               ← one-shot installer (macOS / Linux)
-├── install.ps1              ← one-shot installer (Windows)
-├── requirements.txt         ← Python deps: mcp, filelock, fastapi, uvicorn
-├── config.example.env       ← env template
+├── 🛠 install.sh / .ps1        # one-shot installers
+├── 📋 requirements.txt         # mcp, filelock, fastapi, uvicorn
+├── ⚙️ config.example.env       # env template
 │
-├── FEATURES_GUIDE.md        ← full reference for all 81 tools
-├── CHANGELOG.md             ← version history
-└── LICENSE                  ← MIT
+├── 📖 FEATURES_GUIDE.md        # full reference for all 81 tools
+├── 📝 CHANGELOG.md             # version history
+└── 📄 LICENSE                  # MIT
 ```
 
 ---
 
 ## 🤝 Contributing
 
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/my-feature`
-3. Commit your changes: `git commit -m "Add my feature"`
-4. Push to the branch: `git push origin feature/my-feature`
-5. Open a Pull Request
+We love contributions! Here's the flow:
 
-Please keep PRs focused — one feature or fix per PR.
+1. 🍴 **Fork** the repository
+2. 🌿 Create a feature branch: `git checkout -b feature/my-feature`
+3. ✏️ Commit your changes: `git commit -m "Add my feature"`
+4. 📤 Push to the branch: `git push origin feature/my-feature`
+5. 🎯 Open a **Pull Request**
+
+> 💡 Keep PRs focused — one feature or fix per PR.
 
 ---
 
 ## 🙏 Credits
 
 | Component | Author | License |
-|---|---|---|
-| Base coordination server (`team_coordinator.py`) | **Shalinda Jayasinghe** — [Claude-Team-MCP](https://github.com/shalinda-j/Claude-Team-MCP) | MIT |
-| APEX intelligence + autonomy layer (`apex_v25.py`, `apex.py`, `spawn_util.py`) | Multi-Agent v2.5 framework — skill routing, prompt-engineering, token discipline, personas ported to MCP | MIT |
-| Web dashboard (`frontend/`) | APEX Team project | MIT |
+|:---|:---|:---:|
+| 🔗 Base coordination server (`team_coordinator.py`) | **Shalinda Jayasinghe** — [Claude-Team-MCP](https://github.com/shalinda-j/Claude-Team-MCP) | MIT |
+| 🧠 APEX intelligence + autonomy (`apex_v25.py`, `apex.py`, `spawn_util.py`) | Multi-Agent v2.5 framework | MIT |
+| 🎨 Web dashboard (`frontend/`) | APEX Team project | MIT |
 
 ---
 
 <div align="center">
 
-Released under the **[MIT License](LICENSE)**
+### Released under the [**MIT License**](LICENSE)
 
-*Build autonomously. Ship confidently.*
+<br />
+
+**⭐ Star us on GitHub — it helps a lot!**
+
+<br />
+
+```
+
+  ┌─────────────────────────────────────────────┐
+  │                                             │
+  │     Build autonomously. Ship confidently.   │
+  │                                             │
+  └─────────────────────────────────────────────┘
+
+```
+
+<sub>Made with 🧡 by the APEX Team · *Powered by MCP*</sub>
 
 </div>
