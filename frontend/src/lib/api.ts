@@ -47,6 +47,32 @@ export interface Metrics {
   active_debate: boolean;
 }
 
+export interface CliStatus {
+  id: string;
+  label: string;
+  executable: string;
+  installed: boolean;
+  path: string;
+}
+
+export interface SpawnDetail {
+  title: string;
+  role: string;
+  cli: string;
+  message?: string;
+  status: string;
+}
+
+export interface TraceEvent {
+  time: string;
+  role: string;
+  event: string;
+  detail: string;
+  tokens?: number;
+  tool?: string;
+  status?: string;
+}
+
 export interface TeamState {
   metrics: Metrics;
   agents: Record<string, Agent>;
@@ -56,6 +82,15 @@ export interface TeamState {
   timeline: Array<{ time: string; who: string; action: string }>;
   facts: Record<string, string>;
   findings: unknown[];
+  spawn_status?: {
+    time: string;
+    goal: string;
+    project_dir: string;
+    entries: SpawnDetail[];
+  };
+  trace_events?: TraceEvent[];
+  trace_cost?: { total_tokens: number; by_role: Record<string, number>; event_count: number };
+  gateway_targets?: Array<{ name: string; transport: string; description?: string }>;
 }
 
 // ---- REST helpers ----
@@ -104,9 +139,28 @@ export const api = {
   recover: () =>
     apiFetch<{ message: string }>("/api/recovery", { method: "POST", body: JSON.stringify({}) }),
 
-  launchTeam: (body: { goal: string; mode: string; cli: string; roles: string[]; project_dir: string }) =>
-    apiFetch<{ message: string; project_dir: string; spawned?: string[] }>(
-      "/api/launch",
-      { method: "POST", body: JSON.stringify(body) },
+  getClis: () =>
+    apiFetch<{ clis: CliStatus[]; any_installed: boolean; installed: string[] }>("/api/clis"),
+
+  getSpawnStatus: () =>
+    apiFetch<{ current: TeamState["spawn_status"]; history: TeamState["spawn_status"][] }>(
+      "/api/spawn-status",
     ),
+
+  getTraces: (limit = 100, role = "") =>
+    apiFetch<{ events: TraceEvent[]; cost: TeamState["trace_cost"] }>(
+      `/api/traces?limit=${limit}${role ? `&role=${encodeURIComponent(role)}` : ""}`,
+    ),
+
+  getGateway: () =>
+    apiFetch<{ targets: unknown[]; audit: unknown[] }>("/api/gateway"),
+
+  launchTeam: (body: { goal: string; mode: string; cli: string; roles: string[]; project_dir: string }) =>
+    apiFetch<{
+      message: string;
+      project_dir: string;
+      spawned?: string[];
+      spawn_details?: SpawnDetail[];
+      clis_installed?: string[];
+    }>("/api/launch", { method: "POST", body: JSON.stringify(body) }),
 };

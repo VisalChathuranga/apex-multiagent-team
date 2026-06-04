@@ -5,6 +5,8 @@ import { TaskBoard }    from "@/components/TaskBoard";
 import { ChatPanel }    from "@/components/ChatPanel";
 import { ControlsPanel } from "@/components/ControlsPanel";
 import { LaunchWizard } from "@/components/LaunchWizard";
+import { SpawnHealthPanel } from "@/components/SpawnHealthPanel";
+import { TracesPanel } from "@/components/TracesPanel";
 import { useTeamState } from "@/hooks/useTeamState";
 import { Metrics }      from "@/types/api";
 
@@ -102,6 +104,12 @@ export default function Home() {
         <AgentPanel  agents={state.agents}   tasks={state.tasks} />
         <ChatPanel   messages={state.messages} />
         <ControlsPanel />
+      </div>
+
+      {/* ── Spawn health + traces ── */}
+      <div className="px-4 md:px-5 grid gap-4 md:grid-cols-2 pb-4">
+        <SpawnHealthPanel spawnStatus={state.spawn_status} />
+        <TracesPanel liveEvents={state.trace_events} />
       </div>
 
       {/* ── Task board ── */}

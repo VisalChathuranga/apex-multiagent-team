@@ -4,32 +4,6 @@ api_server.py — FastAPI REST + WebSocket bridge for the APEX team system.
 
 Exposes the team_coordinator.py state file over HTTP so the Next.js dashboard
 can read and write team state without going through MCP.
-
-Endpoints:
-  GET  /api/state              full state snapshot
-  GET  /api/agents             agent roster
-  GET  /api/tasks              task board
-  GET  /api/messages?since=N   channel messages from index N
-  GET  /api/metrics            computed metrics
-  GET  /api/facts              all facts
-  GET  /api/debate             current debate
-  GET  /api/findings           security findings
-
-  POST   /api/tasks             add_task
-  PATCH  /api/tasks/{id}        update_task
-  POST   /api/messages          post_message
-  POST   /api/agents/join       join_team
-  PATCH  /api/agents/{role}/status  set_status
-  POST   /api/facts             set_fact
-  POST   /api/recovery          recover stale tasks (crash recovery)
-
-  WS     /ws/updates            push state snapshots when state changes
-
-Run standalone:
-  uvicorn api_server:app --host 0.0.0.0 --port 8561 --reload
-
-Or from Python:
-  import uvicorn; uvicorn.run("api_server:app", host="0.0.0.0", port=8561)
 """
 
 from __future__ import annotations
@@ -46,7 +20,10 @@ from pydantic import BaseModel
 
 import team_coordinator as tc
 import spawn_util
-
+import apex_trace
+import mcp_gateway
+import a2a_bridge
+import apex_rag
 
 # ---------------------------------------------------------------------------
 # WebSocket connection manager
@@ -81,7 +58,6 @@ _last_write_count: int = -1
 
 
 async def _state_broadcaster() -> None:
-    """Poll the state file every second; broadcast to WebSocket clients on change."""
     global _last_write_count
     while True:
         await asyncio.sleep(1)
@@ -104,7 +80,7 @@ async def lifespan(app: FastAPI):
     task.cancel()
 
 
-app = FastAPI(title="APEX Team API", version="1.0.0", lifespan=lifespan)
+app = FastAPI(title="APEX Team API", version="2.0.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -114,10 +90,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-# ---------------------------------------------------------------------------
-# Internal helpers
-# ---------------------------------------------------------------------------
 
 def _build_snapshot(state: dict) -> dict:
     return {
@@ -130,6 +102,11 @@ def _build_snapshot(state: dict) -> dict:
         "facts": {k: v["value"] if isinstance(v, dict) else v
                   for k, v in state.get("facts", {}).items()},
         "findings": state.get("findings", []),
+        "spawn_status": state.get("spawn_status"),
+        "trace_events": state.get("trace_events", [])[-50:],
+        "trace_cost": apex_trace.trace_cost_summary(),
+        "gateway_targets": state.get("gateway_targets", []),
+        "a2a_card": state.get("a2a_agent_card") or a2a_bridge.build_agent_card(),
     }
 
 
@@ -187,6 +164,43 @@ class LaunchBody(BaseModel):
     project_dir: str = ""
 
 
+class GatewayRegisterBody(BaseModel):
+    name: str
+    transport: str = "stdio"
+    command: str = ""
+    url: str = ""
+    description: str = ""
+
+
+class GatewayCallBody(BaseModel):
+    target_name: str
+    tool_name: str
+    arguments_json: str = "{}"
+
+
+class OpenAPIImportBody(BaseModel):
+    name: str
+    spec_json: str
+    base_url: str = ""
+
+
+class A2ADelegateBody(BaseModel):
+    remote_name: str
+    task_text: str
+    assignee_role: str = "Backend"
+
+
+class RagIndexBody(BaseModel):
+    title: str
+    content: str
+    tags: str = ""
+
+
+class SandboxBody(BaseModel):
+    script: str
+    by_role: str = "PM"
+
+
 # ---------------------------------------------------------------------------
 # GET endpoints
 # ---------------------------------------------------------------------------
@@ -233,12 +247,60 @@ def get_findings():
     return tc._load().get("findings", [])
 
 
+@app.get("/api/clis")
+def get_clis():
+    """Preflight: which agent CLIs are installed on PATH."""
+    clis = spawn_util.get_cli_status()
+    return {
+        "clis": clis,
+        "any_installed": any(c["installed"] for c in clis),
+        "installed": [c["id"] for c in clis if c["installed"]],
+    }
+
+
+@app.get("/api/spawn-status")
+def get_spawn_status():
+    state = tc._load()
+    return {
+        "current": state.get("spawn_status"),
+        "history": state.get("spawn_history", [])[-10:],
+    }
+
+
+@app.get("/api/traces")
+def get_traces(limit: int = 100, role: str = ""):
+    return {
+        "events": apex_trace.get_traces(limit=limit, role=role),
+        "cost": apex_trace.trace_cost_summary(),
+    }
+
+
+@app.get("/api/gateway")
+def get_gateway():
+    state = tc._load()
+    return {
+        "targets": state.get("gateway_targets", []),
+        "audit": state.get("gateway_audit", [])[-30:],
+    }
+
+
+@app.get("/api/a2a/card")
+def get_a2a_card():
+    return a2a_bridge.get_agent_card()
+
+
+@app.get("/.well-known/agent.json")
+def well_known_agent():
+    return a2a_bridge.get_agent_card()
+
+
 # ---------------------------------------------------------------------------
 # POST / PATCH endpoints
 # ---------------------------------------------------------------------------
 
 @app.post("/api/tasks", status_code=201)
 def add_task(body: AddTaskBody):
+    apex_trace.log_trace("add_task", role=body.created_by or "Dashboard", detail=body.title)
     result = tc.add_task(
         title=body.title,
         assignee=body.assignee,
@@ -252,6 +314,7 @@ def add_task(body: AddTaskBody):
 
 @app.patch("/api/tasks/{task_id}")
 def update_task(task_id: int, body: UpdateTaskBody):
+    apex_trace.log_trace("update_task", role=body.by_role or "Dashboard", detail=f"#{task_id}")
     result = tc.update_task(
         task_id=task_id,
         status=body.status,
@@ -268,6 +331,7 @@ def update_task(task_id: int, body: UpdateTaskBody):
 
 @app.post("/api/messages", status_code=201)
 def post_message(body: PostMessageBody):
+    apex_trace.log_trace("post_message", role=body.sender_role, detail=body.text[:200])
     result = tc.post_message(
         sender_role=body.sender_role,
         text=body.text,
@@ -278,12 +342,14 @@ def post_message(body: PostMessageBody):
 
 @app.post("/api/agents/join", status_code=201)
 def join_team(body: JoinTeamBody):
+    apex_trace.log_trace("join_team", role=body.role, detail=body.name or body.role)
     result = tc.join_team(role=body.role, name=body.name)
     return {"message": result}
 
 
 @app.patch("/api/agents/{role}/status")
 def set_status(role: str, body: SetStatusBody):
+    apex_trace.log_trace("set_status", role=role, detail=body.status)
     result = tc.set_status(role=role, status=body.status)
     if "must be one of" in result:
         raise HTTPException(status_code=400, detail=result)
@@ -292,12 +358,14 @@ def set_status(role: str, body: SetStatusBody):
 
 @app.post("/api/facts")
 def set_fact(body: SetFactBody):
+    apex_trace.log_trace("set_fact", role=body.by_role or "Dashboard", detail=body.key)
     result = tc.set_fact(key=body.key, value=body.value, by_role=body.by_role)
     return {"message": result}
 
 
 @app.post("/api/recovery")
 def recover_tasks(body: RecoverBody = RecoverBody()):
+    apex_trace.log_trace("recover_tasks", role=body.by_role, detail="crash recovery")
     result = tc.recover_tasks(stale_seconds=body.stale_seconds, by_role=body.by_role)
     return {"message": result}
 
@@ -309,10 +377,17 @@ def launch_team(body: LaunchBody):
         raise HTTPException(status_code=400, detail="goal is required")
 
     _VALID_MODES = {"ask", "same"}
-    _VALID_CLIS  = {"claude", "codex", "gemini", "cursor"}
+    _VALID_CLIS = {"claude", "codex", "gemini", "cursor"}
     mode = body.mode if body.mode in _VALID_MODES else "ask"
-    cli  = body.cli.lower() if body.cli.lower() in _VALID_CLIS else "claude"
+    cli = body.cli.lower() if body.cli.lower() in _VALID_CLIS else "claude"
     roles = spawn_util.normalize_roles(body.roles if body.roles else ["Backend", "Frontend", "QA"])
+
+    installed = spawn_util.available_clis()
+    if mode == "same" and cli not in installed:
+        raise HTTPException(
+            status_code=400,
+            detail=f"CLI '{cli}' is not on PATH. Installed: {', '.join(installed) or 'none'}",
+        )
 
     here = os.path.dirname(os.path.abspath(__file__))
     project_dir = (
@@ -326,32 +401,93 @@ def launch_team(body: LaunchBody):
         goal, project_dir, roles, cli, mode=mode, workers_pre_spawned=True,
     )
     pm_status = spawn_util.open_terminal_pm(cli, seed, project_dir)
-    spawned = ["APEX-PM"]
+    spawn_entries = [{
+        "title": "APEX-PM",
+        "role": "PM",
+        "cli": cli,
+        "message": pm_status,
+        "status": "spawned" if "failed" not in pm_status.lower() else "failed",
+    }]
     worker_results = spawn_util.spawn_team_workers(
         roles, project_dir, mode=mode, cli=cli,
     )
-    for item in worker_results:
-        spawned.append(item["title"])
+    spawn_entries.extend(worker_results)
+    spawned = [e["title"] for e in spawn_entries]
+
+    spawn_util.record_spawn_batch(spawn_entries, goal=goal, project_dir=project_dir)
+    apex_trace.log_trace(
+        "launch_team",
+        role="Dashboard",
+        detail=f"{len(spawned)} tabs: {', '.join(spawned)}",
+        meta={"goal": goal[:100], "mode": mode, "cli": cli},
+    )
 
     parts = [pm_status] + [f"{w['title']}: {w['message']}" for w in worker_results]
     return {
         "message": "; ".join(parts),
         "project_dir": project_dir,
         "spawned": spawned,
+        "spawn_details": spawn_entries,
+        "clis_installed": installed,
     }
 
 
-# ---------------------------------------------------------------------------
-# WebSocket live updates
-# ---------------------------------------------------------------------------
+@app.post("/api/gateway/register")
+def api_gateway_register(body: GatewayRegisterBody):
+    msg = mcp_gateway.register_target(
+        body.name, body.transport, body.command, body.url, body.description,
+    )
+    apex_trace.log_trace("gateway_register", detail=body.name)
+    return {"message": msg}
+
+
+@app.post("/api/gateway/call")
+def api_gateway_call(body: GatewayCallBody):
+    msg = mcp_gateway.gateway_call(body.target_name, body.tool_name, body.arguments_json)
+    return {"message": msg}
+
+
+@app.post("/api/gateway/openapi")
+def api_gateway_openapi(body: OpenAPIImportBody):
+    msg = mcp_gateway.openapi_import(body.name, body.spec_json, body.base_url)
+    return {"message": msg}
+
+
+@app.post("/api/a2a/publish")
+def api_a2a_publish(name: str = "APEX-Team", description: str = ""):
+    card = a2a_bridge.publish_agent_card(name=name, description=description)
+    return {"message": "Agent Card published", "card": json.loads(card)}
+
+
+@app.post("/api/a2a/delegate")
+def api_a2a_delegate(body: A2ADelegateBody):
+    msg = a2a_bridge.delegate_task(body.remote_name, body.task_text, body.assignee_role)
+    return {"message": msg}
+
+
+@app.post("/api/rag/index")
+def api_rag_index(body: RagIndexBody):
+    msg = apex_rag.index_document(body.title, body.content, body.tags)
+    return {"message": msg}
+
+
+@app.get("/api/rag/search")
+def api_rag_search(q: str, limit: int = 5):
+    return {"result": apex_rag.semantic_search(q, limit=limit)}
+
+
+@app.post("/api/sandbox/run")
+def api_sandbox_run(body: SandboxBody):
+    msg = apex_rag.run_tool_script(body.script, body.by_role)
+    apex_trace.log_trace("sandbox_run", role=body.by_role, detail=body.script[:100])
+    return {"message": msg}
+
 
 @app.websocket("/ws/updates")
 async def ws_updates(ws: WebSocket):
     await _ws_manager.connect(ws)
     try:
-        # Send current state immediately on connect
         await ws.send_text(json.dumps(_build_snapshot(tc._load()), default=str))
-        # Keep connection open; client may send pings
         while True:
             await ws.receive_text()
     except WebSocketDisconnect:
@@ -359,10 +495,6 @@ async def ws_updates(ws: WebSocket):
     except Exception:
         _ws_manager.disconnect(ws)
 
-
-# ---------------------------------------------------------------------------
-# Entry point
-# ---------------------------------------------------------------------------
 
 if __name__ == "__main__":
     import uvicorn

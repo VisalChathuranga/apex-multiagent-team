@@ -8,3 +8,6 @@ pytest>=8.0.0
 httpx>=0.27.0
 pytest-asyncio>=0.23.0
 websockets>=12.0
+
+# Optional — vector RAG (apex_semantic_search with chromadb backend)
+# chromadb>=0.5.0

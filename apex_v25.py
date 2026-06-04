@@ -495,6 +495,102 @@ def apex_orchestrate(goal: str, project_dir: str, roles: str = "Backend,Frontend
     return "\n".join(out)
 
 
+# ============================================================================
+# EXTENSIONS — tracing, gateway, A2A, RAG + sandbox (roadmap phases 2–6)
+# ============================================================================
+import apex_trace
+import mcp_gateway
+import a2a_bridge
+import apex_rag
+
+
+@mcp.tool()
+def apex_trace_log(event: str, role: str = "PM", detail: str = "", tokens: int = 0) -> str:
+    """Log a trace event (tool calls, milestones) for the dashboard Traces tab."""
+    return apex_trace.log_trace(event, role=role, detail=detail, tokens=tokens)
+
+
+@mcp.tool()
+def apex_trace_summary() -> str:
+    """Token cost summary and recent trace events."""
+    cost = apex_trace.trace_cost_summary()
+    events = apex_trace.get_traces(limit=10)
+    lines = [f"Total tokens (logged): {cost['total_tokens']}", "By role:"]
+    for r, t in cost.get("by_role", {}).items():
+        lines.append(f"  {r}: {t}")
+    lines.append("Recent events:")
+    for e in events[:5]:
+        lines.append(f"  [{e.get('time')}] {e.get('role')}: {e.get('event')}")
+    return "\n".join(lines)
+
+
+@mcp.tool()
+def gateway_register(name: str, transport: str = "stdio", command: str = "",
+                     url: str = "", description: str = "") -> str:
+    """Register a downstream MCP server or REST target on the hub."""
+    return mcp_gateway.register_target(name, transport, command, url, description)
+
+
+@mcp.tool()
+def gateway_capabilities() -> str:
+    """List registered MCP gateway targets."""
+    return mcp_gateway.gateway_capabilities()
+
+
+@mcp.tool()
+def gateway_call(target_name: str, tool_name: str, arguments_json: str = "{}") -> str:
+    """Route a tool call through the gateway (audit trail + routing stub)."""
+    return mcp_gateway.gateway_call(target_name, tool_name, arguments_json)
+
+
+@mcp.tool()
+def gateway_openapi_import(name: str, spec_json: str, base_url: str = "") -> str:
+    """Import an OpenAPI/Swagger JSON spec as a gateway adapter."""
+    return mcp_gateway.openapi_import(name, spec_json, base_url)
+
+
+@mcp.tool()
+def a2a_publish_card(name: str = "APEX-Team", description: str = "") -> str:
+    """Publish this team's A2A Agent Card to shared state and HTTP /.well-known/agent.json."""
+    return a2a_bridge.publish_agent_card(name, description)
+
+
+@mcp.tool()
+def a2a_register_remote(card_json: str) -> str:
+    """Register a remote agent's A2A Agent Card JSON for delegation."""
+    return a2a_bridge.register_remote_agent(card_json)
+
+
+@mcp.tool()
+def a2a_list_remotes() -> str:
+    """List registered remote A2A agents."""
+    return a2a_bridge.list_remote_agents()
+
+
+@mcp.tool()
+def a2a_delegate(remote_name: str, task_text: str, assignee_role: str = "Backend") -> str:
+    """Delegate a task to a remote A2A agent and create a local board task."""
+    return a2a_bridge.delegate_task(remote_name, task_text, assignee_role)
+
+
+@mcp.tool()
+def apex_index_document(title: str, content: str, tags: str = "") -> str:
+    """Index document for agentic RAG (Chroma if installed, else keyword index)."""
+    return apex_rag.index_document(title, content, tags)
+
+
+@mcp.tool()
+def apex_semantic_search(query: str, limit: int = 5) -> str:
+    """Search indexed project knowledge before apex_build_prompt."""
+    return apex_rag.semantic_search(query, limit)
+
+
+@mcp.tool()
+def apex_run_tool_script(script: str, by_role: str = "PM") -> str:
+    """Run sandboxed Python using board_tasks/board_messages/post_update (code-exec MCP pattern)."""
+    return apex_rag.run_tool_script(script, by_role)
+
+
 if __name__ == "__main__":
     # Combined run: base coordination + apex intelligence + autonomy tools.
     mcp.run()

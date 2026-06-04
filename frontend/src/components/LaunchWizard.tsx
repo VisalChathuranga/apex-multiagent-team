@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { api } from "@/lib/api";
+import { useEffect, useState } from "react";
+import { api, CliStatus } from "@/lib/api";
 import {
   Dialog,
   DialogContent,
@@ -48,6 +48,12 @@ export function LaunchWizard() {
   const [selected, setSelected]           = useState<Set<string>>(new Set(DEFAULT_AGENTS));
   const [feedback, setFeedback]           = useState<{ ok: boolean; text: string } | null>(null);
   const [launching, setLaunching]         = useState(false);
+  const [clis, setClis]                   = useState<CliStatus[]>([]);
+
+  useEffect(() => {
+    if (!open) return;
+    api.getClis().then((r) => setClis(r.clis)).catch(() => setClis([]));
+  }, [open]);
 
   function toggleAgent(id: string) {
     setSelected(prev => {
@@ -83,8 +89,11 @@ export function LaunchWizard() {
         roles:       Array.from(selected),
         project_dir: projectDir.trim(),
       });
+      const details = res.spawn_details
+        ?.map((d) => `${d.title} [${d.status}]`)
+        .join(", ");
       const tabList = res.spawned?.length
-        ? `Opened ${res.spawned.length} tab(s): ${res.spawned.join(", ")}`
+        ? `Opened ${res.spawned.length} tab(s): ${details || res.spawned.join(", ")}`
         : res.message;
       setFeedback({ ok: true, text: tabList });
       setTimeout(() => handleOpenChange(false), 1800);
@@ -159,6 +168,28 @@ export function LaunchWizard() {
                   <option key={o.value} value={o.value}>{o.label}</option>
                 ))}
               </select>
+              {clis.length > 0 && (
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {clis.map((c) => (
+                    <span
+                      key={c.id}
+                      className={`text-[10px] rounded-full border px-2 py-0.5 ${
+                        c.installed
+                          ? "border-emerald-500/30 text-emerald-400"
+                          : "border-amber-500/30 text-amber-400"
+                      }`}
+                      title={c.path || "not on PATH"}
+                    >
+                      {c.id}: {c.installed ? "OK" : "missing"}
+                    </span>
+                  ))}
+                </div>
+              )}
+              {mode === "same" && clis.length > 0 && !clis.find((c) => c.id === cli)?.installed && (
+                <p className="mt-1.5 text-xs text-amber-400">
+                  Warning: {cli} is not installed. Pick another CLI or install it first.
+                </p>
+              )}
             </section>
 
             {/* ── Project dir ── */}

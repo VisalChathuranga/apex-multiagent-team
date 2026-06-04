@@ -164,6 +164,54 @@ def available_clis() -> list:
     return [cli for cli, exe in _CLI_EXES.items() if shutil.which(exe)]
 
 
+def get_cli_status() -> List[Dict]:
+    """Preflight: which CLIs are on PATH (for dashboard before launch)."""
+    labels = {
+        "claude": "Claude Code",
+        "codex": "OpenAI Codex",
+        "gemini": "Gemini CLI",
+        "cursor": "Cursor Agent",
+    }
+    out = []
+    for cli, exe in _CLI_EXES.items():
+        path = shutil.which(exe)
+        if cli == "cursor" and not path:
+            path = shutil.which("cursor")
+        out.append({
+            "id": cli,
+            "label": labels.get(cli, cli),
+            "executable": exe,
+            "installed": bool(path),
+            "path": path or "",
+        })
+    return out
+
+
+def record_spawn_batch(entries: List[Dict], goal: str = "", project_dir: str = "") -> None:
+    """Persist last launch spawn results for dashboard spawn-health UI."""
+    try:
+        import team_coordinator as tc
+        import time
+
+        batch = {
+            "time": time.strftime("%Y-%m-%d %H:%M:%S"),
+            "goal": goal[:500],
+            "project_dir": project_dir,
+            "entries": entries,
+        }
+
+        def op(state: dict) -> None:
+            state["spawn_status"] = batch
+            history = state.setdefault("spawn_history", [])
+            history.append(batch)
+            if len(history) > 20:
+                state["spawn_history"] = history[-20:]
+
+        tc._mutate(op)
+    except Exception:
+        pass
+
+
 # --------------------------------------------------------------------------
 # Seed prompts
 # --------------------------------------------------------------------------
@@ -326,11 +374,13 @@ def spawn_team_workers(
             boot = agent_boot_command(role, project_dir, cli=use)
             res = open_terminal(title, boot, cwd=project_dir)
         shown = "ask-on-open" if use == "ask" else use
+        ok = "failed" not in res.lower() and "error" not in res.lower()[:20]
         results.append({
             "title": title,
             "role": role,
             "cli": shown,
             "message": res,
+            "status": "spawned" if ok else "failed",
         })
     return results
 

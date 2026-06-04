@@ -24,3 +24,5 @@ Thumbs.db
 .env
 team_backups/
 seeds/
+gateway_adapters/
+rag_index/
