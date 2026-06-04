@@ -105,5 +105,8 @@ export const api = {
     apiFetch<{ message: string }>("/api/recovery", { method: "POST", body: JSON.stringify({}) }),
 
   launchTeam: (body: { goal: string; mode: string; cli: string; roles: string[]; project_dir: string }) =>
-    apiFetch<{ message: string; project_dir: string }>("/api/launch", { method: "POST", body: JSON.stringify(body) }),
+    apiFetch<{ message: string; project_dir: string; spawned?: string[] }>(
+      "/api/launch",
+      { method: "POST", body: JSON.stringify(body) },
+    ),
 };

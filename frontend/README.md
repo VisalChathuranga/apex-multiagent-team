@@ -2,6 +2,17 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
+Start the APEX API (required for Launch Team and live state):
+
+```bash
+# from repo root
+uvicorn api_server:app --host 0.0.0.0 --port 8561
+```
+
+Optional: set `NEXT_PUBLIC_API_URL=http://localhost:8561` in `.env.local` if the API runs elsewhere.
+
+Then run the dashboard:
+
 First, run the development server:
 
 ```bash

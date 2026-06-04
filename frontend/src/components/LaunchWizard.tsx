@@ -83,7 +83,10 @@ export function LaunchWizard() {
         roles:       Array.from(selected),
         project_dir: projectDir.trim(),
       });
-      setFeedback({ ok: true, text: res.message });
+      const tabList = res.spawned?.length
+        ? `Opened ${res.spawned.length} tab(s): ${res.spawned.join(", ")}`
+        : res.message;
+      setFeedback({ ok: true, text: tabList });
       setTimeout(() => handleOpenChange(false), 1800);
     } catch (err: unknown) {
       setFeedback({ ok: false, text: err instanceof Error ? err.message : String(err) });

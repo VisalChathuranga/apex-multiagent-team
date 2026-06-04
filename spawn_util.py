@@ -12,12 +12,15 @@ Two spawn behaviours:
 Set APEX_SPAWN_DRYRUN=1 to print commands instead of opening terminals.
 """
 
+from __future__ import annotations
+
 import os
 import shlex
 import shutil
 import subprocess
 import sys
 from pathlib import Path
+from typing import Dict, List
 
 HERE = Path(__file__).resolve().parent
 
@@ -30,6 +33,49 @@ _CLI_TEMPLATES = {
     "cursor": os.environ.get("APEX_CLI_CURSOR", 'cursor-agent {seed}'),
 }
 _CLI_EXES = {"claude": "claude", "codex": "codex", "gemini": "gemini", "cursor": "cursor-agent"}
+
+# Frontend dashboard role ids -> spawn / join_team names
+_ROLE_ALIASES = {
+    "backend": "Backend",
+    "frontend": "Frontend",
+    "tester": "Tester",
+    "qa": "QA",
+    "pm": "PM",
+    "architect": "Architect",
+    "analyst": "Analyst",
+    "dba": "Dba",
+    "ai-integrator": "Ai-Integrator",
+    "reviewer": "Reviewer",
+    "perf-tuner": "Perf-Tuner",
+    "security-auditor": "Security-Auditor",
+    "pen-tester": "Pen-Tester",
+    "dfir-analyst": "Dfir-Analyst",
+    "writer": "Writer",
+    "devops": "DevOps",
+}
+
+
+def normalize_role(role: str) -> str:
+    """Map UI ids (backend, tester) to stable team role names."""
+    r = (role or "").strip()
+    if not r:
+        return r
+    low = r.lower()
+    if low in _ROLE_ALIASES:
+        return _ROLE_ALIASES[low]
+    if r == r.upper() or (r[0].isupper() and "-" not in r and "_" not in r):
+        return r
+    parts = r.replace("_", "-").split("-")
+    return "-".join(p.capitalize() for p in parts)
+
+
+def normalize_roles(roles: list) -> list:
+    out = []
+    for r in roles:
+        nr = normalize_role(str(r))
+        if nr and nr not in out:
+            out.append(nr)
+    return out or ["Backend", "Frontend", "QA"]
 
 
 def _seed_dir() -> Path:
@@ -144,9 +190,23 @@ def worker_seed(role: str, project_dir: str) -> str:
     )
 
 
-def pm_seed(goal: str, project_dir: str, roles, cli: str, mode: str = "same") -> str:
-    rolelist = ",".join(roles)
-    if mode == "ask":
+def pm_seed(
+    goal: str,
+    project_dir: str,
+    roles,
+    cli: str,
+    mode: str = "same",
+    workers_pre_spawned: bool = False,
+) -> str:
+    norm = normalize_roles(list(roles))
+    rolelist = ",".join(norm)
+    if workers_pre_spawned:
+        spawn_line = (
+            f"Worker terminals are ALREADY open for: {rolelist}. "
+            f"Do NOT call apex_orchestrate (would duplicate tabs). "
+            f"Use view_board / metrics to confirm each role joined the team."
+        )
+    elif mode == "ask":
         spawn_line = (f"apex_orchestrate(goal=<goal>, project_dir='{project_dir}', "
                       f"roles='{rolelist}', mode='ask')  -- each new terminal will "
                       f"ASK the user which service (claude/cursor/codex) to use")
@@ -235,6 +295,44 @@ def open_terminal(title: str, command: str, cwd: str = "") -> str:
             return f"spawned (linux): {title}"
     except Exception as e:
         return f"[spawn failed for {title}: {e}] run manually:\n  {command}"
+
+
+def spawn_team_workers(
+    roles: list,
+    project_dir: str,
+    mode: str = "same",
+    cli: str = "claude",
+    clis: str = "",
+) -> List[Dict]:
+    """Open one terminal tab per worker role. Returns spawn results for API/UI."""
+    role_list = normalize_roles(roles)
+    cli_list = [c.strip().lower() for c in clis.split(",") if c.strip()]
+    mode = (mode or "same").lower()
+    cli = (cli or "claude").lower().strip()
+    project_dir = os.path.abspath(os.path.expanduser(project_dir))
+    results = []
+
+    for i, role in enumerate(role_list):
+        if i < len(cli_list):
+            use = cli_list[i]
+        elif mode == "ask":
+            use = "ask"
+        else:
+            use = cli
+        title = f"APEX-{role}"
+        if sys.platform == "win32":
+            res = open_terminal_boot(title, role, project_dir, cli=use)
+        else:
+            boot = agent_boot_command(role, project_dir, cli=use)
+            res = open_terminal(title, boot, cwd=project_dir)
+        shown = "ask-on-open" if use == "ask" else use
+        results.append({
+            "title": title,
+            "role": role,
+            "cli": shown,
+            "message": res,
+        })
+    return results
 
 
 def open_terminal_boot(title: str, role: str, project_dir: str, cli: str = "ask") -> str:

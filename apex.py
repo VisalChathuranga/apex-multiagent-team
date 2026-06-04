@@ -77,7 +77,7 @@ def main():
     cli = (args.cli or ask("PM CLI (claude/codex/gemini/cursor)", default_cli)).lower()
 
     roles_raw = args.roles or ask("Worker roles (comma-sep)", "Backend,Frontend,QA")
-    roles = [r.strip() for r in roles_raw.split(",") if r.strip()]
+    roles = spawn_util.normalize_roles([r.strip() for r in roles_raw.split(",") if r.strip()])
 
     print("\n  ───────────── PLAN ─────────────")
     print(f"  Mode      : {mode.upper()}  " +

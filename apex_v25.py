@@ -474,8 +474,9 @@ def apex_orchestrate(goal: str, project_dir: str, roles: str = "Backend,Frontend
         mode: "same" -> all workers use `cli`; "ask" -> each terminal asks the
               user which service to use for that agent.
     """
-    role_list = [r.strip() for r in roles.split(",") if r.strip()] or _DEFAULT_ROLES
-    cli_list = [c.strip() for c in clis.split(",") if c.strip()]
+    role_list = spawn_util.normalize_roles(
+        [r.strip() for r in roles.split(",") if r.strip()] or _DEFAULT_ROLES
+    )
 
     def op(state):
         state.setdefault("facts", {})["project.goal"] = {"value": goal, "by": "PM", "time": tc._now()}
@@ -487,20 +488,8 @@ def apex_orchestrate(goal: str, project_dir: str, roles: str = "Backend,Frontend
         pass
 
     out = [f"Goal recorded. Mode='{mode}'. Spawning {len(role_list)} teammates in {project_dir}:"]
-    for i, role in enumerate(role_list):
-        if i < len(cli_list):            # explicit per-role service
-            use = cli_list[i]
-        elif mode == "ask":              # each terminal asks the user
-            use = "ask"
-        else:                            # uniform: same service as PM
-            use = cli
-        if sys.platform == "win32":
-            res = spawn_util.open_terminal_boot(f"APEX-{role}", role, project_dir, cli=use)
-        else:
-            boot = spawn_util.agent_boot_command(role, project_dir, cli=use)
-            res = spawn_util.open_terminal(f"APEX-{role}", boot, cwd=project_dir)
-        shown = "ask-on-open" if use == "ask" else use
-        out.append(f"  • {role} [{shown}] → {res}")
+    for item in spawn_util.spawn_team_workers(role_list, project_dir, mode=mode, cli=cli, clis=clis):
+        out.append(f"  • {item['role']} [{item['cli']}] → {item['message']}")
     out.append("\nNext: add_task for each piece of work, assign_work to roles, "
                "then post_message to kick off. Monitor with view_board.")
     return "\n".join(out)

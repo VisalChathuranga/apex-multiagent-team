@@ -312,7 +312,7 @@ def launch_team(body: LaunchBody):
     _VALID_CLIS  = {"claude", "codex", "gemini", "cursor"}
     mode = body.mode if body.mode in _VALID_MODES else "ask"
     cli  = body.cli.lower() if body.cli.lower() in _VALID_CLIS else "claude"
-    roles = body.roles if body.roles else ["Backend", "Frontend", "QA"]
+    roles = spawn_util.normalize_roles(body.roles if body.roles else ["Backend", "Frontend", "QA"])
 
     here = os.path.dirname(os.path.abspath(__file__))
     project_dir = (
@@ -322,9 +322,23 @@ def launch_team(body: LaunchBody):
     )
     os.makedirs(project_dir, exist_ok=True)
 
-    seed   = spawn_util.pm_seed(goal, project_dir, roles, cli, mode=mode)
-    status = spawn_util.open_terminal_pm(cli, seed, project_dir)
-    return {"message": status, "project_dir": project_dir}
+    seed = spawn_util.pm_seed(
+        goal, project_dir, roles, cli, mode=mode, workers_pre_spawned=True,
+    )
+    pm_status = spawn_util.open_terminal_pm(cli, seed, project_dir)
+    spawned = ["APEX-PM"]
+    worker_results = spawn_util.spawn_team_workers(
+        roles, project_dir, mode=mode, cli=cli,
+    )
+    for item in worker_results:
+        spawned.append(item["title"])
+
+    parts = [pm_status] + [f"{w['title']}: {w['message']}" for w in worker_results]
+    return {
+        "message": "; ".join(parts),
+        "project_dir": project_dir,
+        "spawned": spawned,
+    }
 
 
 # ---------------------------------------------------------------------------
