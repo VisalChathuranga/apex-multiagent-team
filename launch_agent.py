@@ -75,27 +75,28 @@ def _clean_env() -> dict:
 def _run_cli(argv: list, seed: str, cli: str, use_stdin: bool) -> int:
     env = _clean_env()
     exe = argv[0] if argv else ""
+    run_argv = argv + (["-"] if use_stdin and cli == "codex" else [])
 
     if use_stdin and cli == "codex":
         try:
-            return subprocess.run(argv + ["-"], input=seed, text=True, env=env).returncode
+            return subprocess.run(run_argv, input=seed, text=True, env=env).returncode
         except (OSError, FileNotFoundError):
             pass
 
     if _needs_shell(exe):
-        cmdline = subprocess.list2cmdline(argv if use_stdin else argv + [seed])
+        cmdline = subprocess.list2cmdline(run_argv if use_stdin else argv + [seed])
         if use_stdin:
             return subprocess.run(cmdline, input=seed, text=True, shell=True, env=env).returncode
         return subprocess.call(cmdline, shell=True, env=env)
 
     try:
         if use_stdin:
-            return subprocess.run(argv, input=seed, text=True, env=env).returncode
+            return subprocess.run(run_argv, input=seed, text=True, env=env).returncode
         return subprocess.call(argv + [seed], env=env)
     except OSError:
         if sys.platform != "win32":
             raise
-        cmdline = subprocess.list2cmdline(argv if use_stdin else argv + [seed])
+        cmdline = subprocess.list2cmdline(run_argv if use_stdin else argv + [seed])
         if use_stdin:
             return subprocess.run(cmdline, input=seed, text=True, shell=True, env=env).returncode
         return subprocess.call(cmdline, shell=True, env=env)

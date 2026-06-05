@@ -92,6 +92,14 @@ def main():
     if not args.yes and ask("Launch the team? (y/n)", "y").lower() not in ("y", "yes"):
         print("  Cancelled."); return 0
 
+    mcp_clis = [cli]
+    if mode == "ask":
+        mcp_clis.extend(c for c in installed if c in {"claude", "codex"})
+    mcp_setup = spawn_util.ensure_launch_mcp(mcp_clis, project_root=project_dir)
+    for item in mcp_setup:
+        if item.get("status") == "failed":
+            print(f"  MCP setup warning for {item.get('cli')}: {item.get('message')}")
+
     seed = spawn_util.pm_seed(goal, os.path.expanduser(project_dir), roles, cli, mode=mode)
     print("  Opening PM terminal …\n")
     project_dir = os.path.expanduser(project_dir)

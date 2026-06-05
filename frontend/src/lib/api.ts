@@ -63,6 +63,14 @@ export interface SpawnDetail {
   status: string;
 }
 
+export interface McpSetupDetail {
+  cli: string;
+  status: string;
+  message?: string;
+  python?: string;
+  server?: string;
+}
+
 export interface TraceEvent {
   time: string;
   role: string;
@@ -155,12 +163,15 @@ export const api = {
   getGateway: () =>
     apiFetch<{ targets: unknown[]; audit: unknown[] }>("/api/gateway"),
 
-  launchTeam: (body: { goal: string; mode: string; cli: string; roles: string[]; project_dir: string }) =>
+  launchTeam: (body: { goal: string; mode: string; cli: string; roles: string[]; project_dir: string; auto_agents?: boolean }) =>
     apiFetch<{
       message: string;
       project_dir: string;
       spawned?: string[];
       spawn_details?: SpawnDetail[];
       clis_installed?: string[];
+      mcp_setup?: McpSetupDetail[];
+      auto_agents?: boolean;
+      planned_roles?: string[];
     }>("/api/launch", { method: "POST", body: JSON.stringify(body) }),
 };

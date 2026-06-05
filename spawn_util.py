@@ -28,7 +28,7 @@ HERE = Path(__file__).resolve().parent
 # Override with env, e.g. APEX_CLI_CLAUDE="claude {seed}".
 _CLI_TEMPLATES = {
     "claude": os.environ.get("APEX_CLI_CLAUDE", 'claude --dangerously-skip-permissions {seed}'),
-    "codex":  os.environ.get("APEX_CLI_CODEX",  'codex {seed}'),
+    "codex":  os.environ.get("APEX_CLI_CODEX",  'codex --dangerously-bypass-approvals-and-sandbox {seed}'),
     "gemini": os.environ.get("APEX_CLI_GEMINI", 'gemini {seed}'),
     "cursor": os.environ.get("APEX_CLI_CURSOR", 'cursor-agent {seed}'),
 }
@@ -53,6 +53,23 @@ _ROLE_ALIASES = {
     "writer": "Writer",
     "devops": "DevOps",
 }
+
+AVAILABLE_AGENT_ROLES = [
+    "Architect",
+    "Analyst",
+    "Backend",
+    "Frontend",
+    "Dba",
+    "Ai-Integrator",
+    "Tester",
+    "Reviewer",
+    "Perf-Tuner",
+    "Security-Auditor",
+    "Pen-Tester",
+    "Dfir-Analyst",
+    "Writer",
+    "DevOps",
+]
 
 
 def normalize_role(role: str) -> str:
@@ -187,6 +204,79 @@ def get_cli_status() -> List[Dict]:
     return out
 
 
+def _mcp_env(project_root: str = "") -> Dict[str, str]:
+    root = Path(project_root).resolve() if project_root else HERE
+    brain = HERE / "second_brain"
+    brain.mkdir(exist_ok=True)
+    return {
+        "TEAM_STATE_FILE": str(HERE / "shared_state.json"),
+        "BRAIN_DIR": str(brain),
+        "APEX_ANTIGRAVITY_DIR": str(Path.home() / ".gemini" / "antigravity" / "skills"),
+        "APEX_CYBERSEC_DIR": str(Path.home() / ".gemini" / "cybersecurity-skills" / "skills"),
+        "MAX_AGENTS": os.environ.get("MAX_AGENTS", "4"),
+        "MSG_ROTATE_LIMIT": os.environ.get("MSG_ROTATE_LIMIT", "800"),
+        "APEX_PROJECT_DIR": str(root),
+    }
+
+
+def _run_config_command(argv: List[str]) -> str:
+    try:
+        cp = subprocess.run(argv, capture_output=True, text=True, timeout=25)
+    except Exception as e:
+        return f"failed: {e}"
+    text = (cp.stdout or cp.stderr or "").strip()
+    return "ok" if cp.returncode == 0 else f"failed: {text or cp.returncode}"
+
+
+def ensure_cli_mcp(cli: str, project_root: str = "") -> Dict[str, str]:
+    """Refresh this repo's `team` MCP server config for a supported CLI."""
+    cli = (cli or "").lower().strip()
+    if os.environ.get("APEX_SKIP_MCP_REGISTER") == "1":
+        return {"cli": cli, "status": "skipped", "message": "APEX_SKIP_MCP_REGISTER=1"}
+    if cli not in {"claude", "codex"}:
+        return {"cli": cli, "status": "skipped", "message": "no auto MCP registration for this CLI"}
+    if not shutil.which(cli):
+        return {"cli": cli, "status": "missing", "message": f"{cli} is not on PATH"}
+
+    env = _mcp_env(project_root)
+    python_exe = sys.executable or "python"
+    server = str(HERE / "apex_v25.py")
+
+    if cli == "claude":
+        _run_config_command(["claude", "mcp", "remove", "team", "-s", "user"])
+        argv = ["claude", "mcp", "add", "team", "-s", "user"]
+        for k, v in env.items():
+            argv += ["-e", f"{k}={v}"]
+        argv += ["--", python_exe, server]
+    else:
+        _run_config_command(["codex", "mcp", "remove", "team"])
+        argv = ["codex", "mcp", "add", "team"]
+        for k, v in env.items():
+            argv += ["--env", f"{k}={v}"]
+        argv += ["--", python_exe, server]
+
+    result = _run_config_command(argv)
+    return {
+        "cli": cli,
+        "status": "configured" if result == "ok" else "failed",
+        "message": result,
+        "python": python_exe,
+        "server": server,
+    }
+
+
+def ensure_launch_mcp(clis: List[str], project_root: str = "") -> List[Dict[str, str]]:
+    """Best-effort MCP registration before opening autonomous agent terminals."""
+    seen = []
+    results = []
+    for cli in clis:
+        c = (cli or "").lower().strip()
+        if c and c not in seen:
+            seen.append(c)
+            results.append(ensure_cli_mcp(c, project_root=project_root))
+    return results
+
+
 def record_spawn_batch(entries: List[Dict], goal: str = "", project_dir: str = "") -> None:
     """Persist last launch spawn results for dashboard spawn-health UI."""
     try:
@@ -245,14 +335,33 @@ def pm_seed(
     cli: str,
     mode: str = "same",
     workers_pre_spawned: bool = False,
+    auto_agents: bool = False,
 ) -> str:
-    norm = normalize_roles(list(roles))
+    norm = [] if auto_agents else normalize_roles(list(roles))
     rolelist = ",".join(norm)
-    if workers_pre_spawned:
+    if auto_agents:
+        allowed = ",".join(AVAILABLE_AGENT_ROLES)
+        if mode == "ask":
+            spawn_line = (
+                f"Analyze the goal and detected stack, choose the minimal useful team "
+                f"from these roles only: {allowed}. Then call apex_orchestrate("
+                f"goal=<goal>, project_dir='{project_dir}', roles='<your comma-separated roles>', "
+                f"mode='ask'). Do not ask the user which roles to use."
+            )
+        else:
+            spawn_line = (
+                f"Analyze the goal and detected stack, choose the minimal useful team "
+                f"from these roles only: {allowed}. Then call apex_orchestrate("
+                f"goal=<goal>, project_dir='{project_dir}', roles='<your comma-separated roles>', "
+                f"cli='{cli}', mode='same'). Do not ask the user which roles to use."
+            )
+    elif workers_pre_spawned:
         spawn_line = (
             f"Worker terminals are ALREADY open for: {rolelist}. "
             f"Do NOT call apex_orchestrate (would duplicate tabs). "
-            f"Use view_board / metrics to confirm each role joined the team."
+            f"Use view_board / metrics to confirm each role joined the team. "
+            f"Do not implement worker tasks yourself unless the user explicitly asks; "
+            f"your job is planning, assignment, monitoring, and recovery."
         )
     elif mode == "ask":
         spawn_line = (f"apex_orchestrate(goal=<goal>, project_dir='{project_dir}', "
@@ -273,8 +382,9 @@ def pm_seed(
         f"4) Plan: break the goal into board tasks. Use add_task with priority and "
         f"depends_on so order is correct (e.g. backend API before frontend wiring). "
         f"set_skills for each agent, then auto_assign (or assign_work) so tasks go to "
-        f"the skill-matched role. suggest_worktrees so agents don't collide in git. "
-        f"post_message to kick off.\n"
+        f"the skill-matched role. If selected worker roles are not visible yet, wait "
+        f"and ping instead of taking their tasks yourself. suggest_worktrees so agents "
+        f"don't collide in git. post_message to kick off.\n"
         f"5) Monitor: view_board / metrics / wait_for_message. who_is_free -> assign "
         f"more. check_conflicts if agents overlap. If an agent goes silent: ping, "
         f"then recover_tasks and reassign. Debate only high-stakes calls (schema, "

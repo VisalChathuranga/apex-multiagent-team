@@ -45,6 +45,7 @@ export function LaunchWizard() {
   const [mode, setMode]                   = useState<"ask" | "same">("ask");
   const [cli, setCli]                     = useState("claude");
   const [projectDir, setProjectDir]       = useState("");
+  const [autoAgents, setAutoAgents]       = useState(false);
   const [selected, setSelected]           = useState<Set<string>>(new Set(DEFAULT_AGENTS));
   const [feedback, setFeedback]           = useState<{ ok: boolean; text: string } | null>(null);
   const [launching, setLaunching]         = useState(false);
@@ -58,7 +59,11 @@ export function LaunchWizard() {
   function toggleAgent(id: string) {
     setSelected(prev => {
       const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
       return next;
     });
   }
@@ -68,6 +73,7 @@ export function LaunchWizard() {
     setMode("ask");
     setCli("claude");
     setProjectDir("");
+    setAutoAgents(false);
     setSelected(new Set(DEFAULT_AGENTS));
     setFeedback(null);
   }
@@ -78,7 +84,7 @@ export function LaunchWizard() {
   }
 
   async function handleLaunch() {
-    if (!goal.trim() || selected.size === 0) return;
+    if (!goal.trim() || (!autoAgents && selected.size === 0)) return;
     setLaunching(true);
     setFeedback(null);
     try {
@@ -86,8 +92,9 @@ export function LaunchWizard() {
         goal:        goal.trim(),
         mode,
         cli,
-        roles:       Array.from(selected),
+        roles:       autoAgents ? [] : Array.from(selected),
         project_dir: projectDir.trim(),
+        auto_agents: autoAgents,
       });
       const details = res.spawn_details
         ?.map((d) => `${d.title} [${d.status}]`)
@@ -95,8 +102,17 @@ export function LaunchWizard() {
       const tabList = res.spawned?.length
         ? `Opened ${res.spawned.length} tab(s): ${details || res.spawned.join(", ")}`
         : res.message;
-      setFeedback({ ok: true, text: tabList });
-      setTimeout(() => handleOpenChange(false), 1800);
+      const teamText = res.auto_agents
+        ? " PM will select and spawn the needed agents."
+        : ` PM will spawn selected agents${res.planned_roles?.length ? `: ${res.planned_roles.join(", ")}` : ""}.`;
+      const mcpFailed = res.mcp_setup?.filter((m) => m.status === "failed" || m.status === "missing") ?? [];
+      const mcpText = mcpFailed.length
+        ? ` MCP setup issue: ${mcpFailed.map((m) => `${m.cli} ${m.status}`).join(", ")}.`
+        : "";
+      setFeedback({ ok: mcpFailed.length === 0, text: `${tabList}.${teamText}${mcpText}` });
+      if (mcpFailed.length === 0) {
+        setTimeout(() => handleOpenChange(false), 1800);
+      }
     } catch (err: unknown) {
       setFeedback({ ok: false, text: err instanceof Error ? err.message : String(err) });
     } finally {
@@ -210,13 +226,43 @@ export function LaunchWizard() {
 
             {/* ── Agent checkboxes ── */}
             <section>
+              <div className="flex items-center justify-between gap-3 rounded-lg border border-border p-3">
+                <div>
+                  <SectionLabel>Team selection</SectionLabel>
+                  <p className="mt-1 text-xs leading-tight text-muted-foreground">
+                    Auto lets the PM choose the right agents for this goal and spawn them later.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  aria-pressed={autoAgents}
+                  onClick={() => setAutoAgents(v => !v)}
+                  className={`shrink-0 rounded-md border px-3 py-1.5 text-xs font-semibold transition-colors ${
+                    autoAgents
+                      ? "border-primary bg-primary text-primary-foreground"
+                      : "border-border text-muted-foreground hover:border-primary/40"
+                  }`}
+                >
+                  Auto {autoAgents ? "ON" : "OFF"}
+                </button>
+              </div>
+            </section>
+
+            <Separator />
+
+            <section>
               <div className="flex items-center justify-between">
-                <SectionLabel>{selected.size} agent{selected.size !== 1 ? "s" : ""} selected</SectionLabel>
+                <SectionLabel>
+                  {autoAgents
+                    ? "PM will choose agents"
+                    : `${selected.size} agent${selected.size !== 1 ? "s" : ""} selected`}
+                </SectionLabel>
                 <div className="flex gap-3 text-xs">
                   <button
                     type="button"
                     onClick={() => setSelected(new Set(AGENTS.map(a => a.id)))}
-                    className="text-primary hover:underline"
+                    disabled={autoAgents}
+                    className="text-primary hover:underline disabled:pointer-events-none disabled:opacity-40"
                   >
                     Select all
                   </button>
@@ -224,20 +270,22 @@ export function LaunchWizard() {
                   <button
                     type="button"
                     onClick={() => setSelected(new Set())}
-                    className="text-primary hover:underline"
+                    disabled={autoAgents}
+                    className="text-primary hover:underline disabled:pointer-events-none disabled:opacity-40"
                   >
                     Clear
                   </button>
                 </div>
               </div>
 
-              <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+              <div className={`mt-2 grid grid-cols-1 sm:grid-cols-2 gap-1.5 ${autoAgents ? "opacity-45" : ""}`}>
                 {AGENTS.map(agent => (
                   <AgentCheckbox
                     key={agent.id}
                     id={agent.id}
                     desc={agent.desc}
                     checked={selected.has(agent.id)}
+                    disabled={autoAgents}
                     onChange={() => toggleAgent(agent.id)}
                   />
                 ))}
@@ -264,12 +312,14 @@ export function LaunchWizard() {
               </Button>
               <Button
                 size="sm"
-                disabled={!goal.trim() || selected.size === 0 || launching}
+                disabled={!goal.trim() || (!autoAgents && selected.size === 0) || launching}
                 onClick={handleLaunch}
               >
                 {launching
                   ? "Launching…"
-                  : `Launch ${selected.size} Agent${selected.size !== 1 ? "s" : ""}`}
+                  : autoAgents
+                    ? "Launch PM (Auto team)"
+                    : `Launch PM (${selected.size} selected)`}
               </Button>
             </div>
           </div>
@@ -314,16 +364,19 @@ function ModeCard({
 }
 
 function AgentCheckbox({
-  id, desc, checked, onChange,
+  id, desc, checked, disabled = false, onChange,
 }: {
   id: string;
   desc: string;
   checked: boolean;
+  disabled?: boolean;
   onChange: () => void;
 }) {
   return (
     <label
-      className={`flex cursor-pointer items-start gap-2.5 rounded-lg border p-2.5 transition-colors ${
+      className={`flex items-start gap-2.5 rounded-lg border p-2.5 transition-colors ${
+        disabled ? "cursor-not-allowed" : "cursor-pointer"
+      } ${
         checked
           ? "border-primary/60 bg-primary/5"
           : "border-border hover:border-primary/30"
@@ -332,6 +385,7 @@ function AgentCheckbox({
       <input
         type="checkbox"
         checked={checked}
+        disabled={disabled}
         onChange={onChange}
         className="mt-0.5 h-4 w-4 shrink-0 accent-primary"
       />

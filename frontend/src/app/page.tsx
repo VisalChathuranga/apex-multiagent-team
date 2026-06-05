@@ -8,7 +8,23 @@ import { LaunchWizard } from "@/components/LaunchWizard";
 import { SpawnHealthPanel } from "@/components/SpawnHealthPanel";
 import { TracesPanel } from "@/components/TracesPanel";
 import { useTeamState } from "@/hooks/useTeamState";
-import { Metrics }      from "@/types/api";
+import { Metrics, TeamState } from "@/types/api";
+
+const EMPTY_STATE: TeamState = {
+  metrics: {
+    agents_total: 0, agents_online: 0, messages: 0,
+    tasks_total: 0, tasks_done: 0, tasks_in_progress: 0,
+    tasks_todo: 0, tasks_blocked: 0, notes: 0, decisions: 0,
+    active_debate: false,
+  },
+  agents: {},
+  tasks: [],
+  messages: [],
+  debate: null,
+  timeline: [],
+  facts: {},
+  findings: [],
+};
 
 /* ── Header metric chip ─────────────────────────────────────── */
 const CHIP: Record<string, string> = {
@@ -51,10 +67,12 @@ function LoadingScreen() {
 
 /* ── Main page ───────────────────────────────────────────────── */
 export default function Home() {
-  const state = useTeamState();
-  if (!state) return <LoadingScreen />;
+  const { state, ready } = useTeamState();
+  if (!ready) return <LoadingScreen />;
 
-  const m: Metrics = state.metrics;
+  const connected = state !== null;
+  const s = state ?? EMPTY_STATE;
+  const m: Metrics = s.metrics;
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -81,10 +99,10 @@ export default function Home() {
 
           <div className="h-4 w-px bg-border/60" />
 
-          {/* Live dot */}
+          {/* Connection dot */}
           <div className="flex items-center gap-1.5 shrink-0">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-xs text-muted-foreground">Live</span>
+            <span className={`h-1.5 w-1.5 rounded-full ${connected ? "bg-emerald-400 animate-pulse" : "bg-slate-500"}`} />
+            <span className="text-xs text-muted-foreground">{connected ? "Live" : "Offline"}</span>
           </div>
 
           {/* Metrics */}
@@ -101,20 +119,20 @@ export default function Home() {
 
       {/* ── 3-column grid ── */}
       <div className="flex-1 p-4 md:p-5 grid gap-4 md:grid-cols-[280px_1fr_290px] items-start">
-        <AgentPanel  agents={state.agents}   tasks={state.tasks} />
-        <ChatPanel   messages={state.messages} />
+        <AgentPanel  agents={s.agents}   tasks={s.tasks} />
+        <ChatPanel   messages={s.messages} />
         <ControlsPanel />
       </div>
 
       {/* ── Spawn health + traces ── */}
       <div className="px-4 md:px-5 grid gap-4 md:grid-cols-2 pb-4">
-        <SpawnHealthPanel spawnStatus={state.spawn_status} />
-        <TracesPanel liveEvents={state.trace_events} />
+        <SpawnHealthPanel spawnStatus={s.spawn_status} />
+        <TracesPanel liveEvents={s.trace_events} />
       </div>
 
       {/* ── Task board ── */}
       <div className="px-4 md:px-5 pb-6">
-        <TaskBoard tasks={state.tasks} />
+        <TaskBoard tasks={s.tasks} />
       </div>
     </div>
   );

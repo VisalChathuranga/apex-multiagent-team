@@ -3,10 +3,12 @@
 import { useEffect, useRef, useState } from "react";
 import { TeamState, WS_URL, api } from "@/lib/api";
 
-export function useTeamState(): TeamState | null {
+export function useTeamState(): { state: TeamState | null; ready: boolean } {
   const [state, setState] = useState<TeamState | null>(null);
+  const [ready, setReady] = useState(false);
   const wsRef = useRef<WebSocket | null>(null);
   const retryRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const readyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     let dead = false;
@@ -19,6 +21,7 @@ export function useTeamState(): TeamState | null {
       ws.onmessage = (e) => {
         try {
           setState(JSON.parse(e.data) as TeamState);
+          setReady(true);
         } catch {
           // ignore malformed frames
         }
@@ -33,16 +36,18 @@ export function useTeamState(): TeamState | null {
       ws.onerror = () => ws.close();
     }
 
-    // Initial REST fetch so the UI isn't blank while WS connects
-    api.getState().then(setState).catch(() => null);
+    api.getState().then((s) => { setState(s); setReady(true); }).catch(() => null);
+    // Show the UI after 3 s even if the API hasn't responded yet
+    readyTimerRef.current = setTimeout(() => setReady(true), 3000);
     connect();
 
     return () => {
       dead = true;
       if (retryRef.current) clearTimeout(retryRef.current);
+      if (readyTimerRef.current) clearTimeout(readyTimerRef.current);
       wsRef.current?.close();
     };
   }, []);
 
-  return state;
+  return { state, ready };
 }

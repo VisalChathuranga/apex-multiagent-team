@@ -162,6 +162,7 @@ class LaunchBody(BaseModel):
     cli: str = "claude"
     roles: List[str] = ["Backend", "Frontend", "QA"]
     project_dir: str = ""
+    auto_agents: bool = False
 
 
 class GatewayRegisterBody(BaseModel):
@@ -380,7 +381,8 @@ def launch_team(body: LaunchBody):
     _VALID_CLIS = {"claude", "codex", "gemini", "cursor"}
     mode = body.mode if body.mode in _VALID_MODES else "ask"
     cli = body.cli.lower() if body.cli.lower() in _VALID_CLIS else "claude"
-    roles = spawn_util.normalize_roles(body.roles if body.roles else ["Backend", "Frontend", "QA"])
+    auto_agents = bool(body.auto_agents)
+    roles = [] if auto_agents else spawn_util.normalize_roles(body.roles if body.roles else ["Backend", "Frontend", "QA"])
 
     installed = spawn_util.available_clis()
     if mode == "same" and cli not in installed:
@@ -397,8 +399,13 @@ def launch_team(body: LaunchBody):
     )
     os.makedirs(project_dir, exist_ok=True)
 
+    mcp_clis = [cli]
+    if mode == "ask":
+        mcp_clis.extend(c for c in installed if c in {"claude", "codex"})
+    mcp_setup = spawn_util.ensure_launch_mcp(mcp_clis, project_root=project_dir)
+
     seed = spawn_util.pm_seed(
-        goal, project_dir, roles, cli, mode=mode, workers_pre_spawned=True,
+        goal, project_dir, roles, cli, mode=mode, auto_agents=auto_agents,
     )
     pm_status = spawn_util.open_terminal_pm(cli, seed, project_dir)
     spawn_entries = [{
@@ -408,27 +415,25 @@ def launch_team(body: LaunchBody):
         "message": pm_status,
         "status": "spawned" if "failed" not in pm_status.lower() else "failed",
     }]
-    worker_results = spawn_util.spawn_team_workers(
-        roles, project_dir, mode=mode, cli=cli,
-    )
-    spawn_entries.extend(worker_results)
     spawned = [e["title"] for e in spawn_entries]
 
     spawn_util.record_spawn_batch(spawn_entries, goal=goal, project_dir=project_dir)
     apex_trace.log_trace(
         "launch_team",
         role="Dashboard",
-        detail=f"{len(spawned)} tabs: {', '.join(spawned)}",
-        meta={"goal": goal[:100], "mode": mode, "cli": cli},
+        detail=f"{len(spawned)} tab: {', '.join(spawned)}; PM will spawn workers",
+        meta={"goal": goal[:100], "mode": mode, "cli": cli, "auto_agents": auto_agents, "roles": roles},
     )
 
-    parts = [pm_status] + [f"{w['title']}: {w['message']}" for w in worker_results]
     return {
-        "message": "; ".join(parts),
+        "message": f"{pm_status}; PM will choose and spawn workers" if auto_agents else f"{pm_status}; PM will spawn selected workers: {', '.join(roles)}",
         "project_dir": project_dir,
         "spawned": spawned,
         "spawn_details": spawn_entries,
         "clis_installed": installed,
+        "mcp_setup": mcp_setup,
+        "auto_agents": auto_agents,
+        "planned_roles": roles,
     }
 
 
