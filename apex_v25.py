@@ -116,7 +116,7 @@ def _build_persona_index() -> dict:
             "framework": _FRAMEWORK.get(r, "RTF")
         }
     
-    persona_dir = Path(r"d:\apex-team\personas")
+    persona_dir = Path(__file__).parent / "personas"
     if persona_dir.exists():
         for div_dir in persona_dir.iterdir():
             if not div_dir.is_dir():
