@@ -11,3 +11,10 @@ websockets>=12.0
 
 # Optional — vector RAG (apex_semantic_search with chromadb backend)
 # chromadb>=0.5.0
+
+textual>=0.80
+anthropic>=0.40
+openai>=1.40
+python-docx>=1.1
+
+claude-agent-sdk

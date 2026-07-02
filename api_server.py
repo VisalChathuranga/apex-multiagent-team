@@ -24,6 +24,7 @@ import apex_trace
 import mcp_gateway
 import a2a_bridge
 import apex_rag
+import apex_v25
 
 # ---------------------------------------------------------------------------
 # WebSocket connection manager
@@ -257,6 +258,23 @@ def get_clis():
         "any_installed": any(c["installed"] for c in clis),
         "installed": [c["id"] for c in clis if c["installed"]],
     }
+
+
+@app.get("/api/personas/divisions")
+def get_divisions():
+    idx = apex_v25._build_persona_index()
+    divisions = set(meta.get("division", "unknown") for meta in idx.values())
+    return {"divisions": sorted(list(divisions))}
+
+
+@app.get("/api/personas/roles")
+def get_roles(division: str = ""):
+    idx = apex_v25._build_persona_index()
+    if division:
+        roles = [role for role, meta in idx.items() if meta.get("division") == division]
+    else:
+        roles = list(idx.keys())
+    return {"roles": sorted(roles)}
 
 
 @app.get("/api/spawn-status")

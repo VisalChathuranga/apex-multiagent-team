@@ -150,6 +150,12 @@ export const api = {
   getClis: () =>
     apiFetch<{ clis: CliStatus[]; any_installed: boolean; installed: string[] }>("/api/clis"),
 
+  getDivisions: () =>
+    apiFetch<{ divisions: string[] }>("/api/personas/divisions"),
+
+  getRoles: (division: string = "") =>
+    apiFetch<{ roles: string[] }>(`/api/personas/roles${division ? `?division=${encodeURIComponent(division)}` : ""}`),
+
   getSpawnStatus: () =>
     apiFetch<{ current: TeamState["spawn_status"]; history: TeamState["spawn_status"][] }>(
       "/api/spawn-status",

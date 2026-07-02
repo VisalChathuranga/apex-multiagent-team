@@ -13,22 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 
-const AGENTS = [
-  { id: "architect",        desc: "C4 diagrams, ADRs, system design, tech-stack decisions" },
-  { id: "analyst",          desc: "User stories, acceptance criteria, MVP scope" },
-  { id: "backend",          desc: "APIs & server logic — Node / Go / Python / Rust / .NET" },
-  { id: "frontend",         desc: "UI & components — Next.js, React, Vue, SvelteKit, Astro" },
-  { id: "dba",              desc: "Schemas, migrations, indexes, query optimization" },
-  { id: "ai-integrator",    desc: "LLM/RAG pipelines, vector stores, AI service clients" },
-  { id: "tester",           desc: "Unit, integration & E2E tests — pytest / jest / Playwright" },
-  { id: "reviewer",         desc: "Code review — SOLID, DRY, readability, refactor suggestions" },
-  { id: "perf-tuner",       desc: "Profiling, latency, N+1 hunting, bundle-size triage" },
-  { id: "security-auditor", desc: "OWASP Top 10, CVEs, weak auth/crypto, secrets — read-only" },
-  { id: "pen-tester",       desc: "Offensive testing, exploit validation — read-only" },
-  { id: "dfir-analyst",     desc: "Incident response, log analysis, Sigma/YARA detection rules" },
-  { id: "writer",           desc: "README, CHANGELOG, API docs, release notes" },
-  { id: "devops",           desc: "CI/CD pipelines, Dockerfiles, GitHub Actions, Vercel/AWS" },
-];
+// Dynamic agents loaded via API
 
 const CLI_OPTIONS = [
   { value: "claude",  label: "Claude (claude-code)" },
@@ -50,11 +35,25 @@ export function LaunchWizard() {
   const [feedback, setFeedback]           = useState<{ ok: boolean; text: string } | null>(null);
   const [launching, setLaunching]         = useState(false);
   const [clis, setClis]                   = useState<CliStatus[]>([]);
+  const [divisions, setDivisions]         = useState<string[]>([]);
+  const [selectedDivision, setSelectedDivision] = useState<string>("engineering");
+  const [roles, setRoles]                 = useState<string[]>([]);
 
   useEffect(() => {
     if (!open) return;
     api.getClis().then((r) => setClis(r.clis)).catch(() => setClis([]));
+    api.getDivisions().then((r) => {
+      setDivisions(r.divisions);
+      if (r.divisions.length > 0 && !r.divisions.includes(selectedDivision)) {
+        setSelectedDivision(r.divisions[0]);
+      }
+    }).catch(() => setDivisions([]));
   }, [open]);
+
+  useEffect(() => {
+    if (!open || !selectedDivision) return;
+    api.getRoles(selectedDivision).then((r) => setRoles(r.roles)).catch(() => setRoles([]));
+  }, [open, selectedDivision]);
 
   function toggleAgent(id: string) {
     setSelected(prev => {
@@ -260,11 +259,11 @@ export function LaunchWizard() {
                 <div className="flex gap-3 text-xs">
                   <button
                     type="button"
-                    onClick={() => setSelected(new Set(AGENTS.map(a => a.id)))}
+                    onClick={() => setSelected(new Set(roles))}
                     disabled={autoAgents}
                     className="text-primary hover:underline disabled:pointer-events-none disabled:opacity-40"
                   >
-                    Select all
+                    Select all in division
                   </button>
                   <span className="text-muted-foreground">·</span>
                   <button
@@ -273,20 +272,33 @@ export function LaunchWizard() {
                     disabled={autoAgents}
                     className="text-primary hover:underline disabled:pointer-events-none disabled:opacity-40"
                   >
-                    Clear
+                    Clear all
                   </button>
                 </div>
               </div>
 
+              <div className="mt-2">
+                <select
+                  value={selectedDivision}
+                  onChange={e => setSelectedDivision(e.target.value)}
+                  disabled={autoAgents}
+                  className="mb-2 w-full sm:w-auto rounded-md border border-input bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                >
+                  {divisions.map(d => (
+                    <option key={d} value={d}>{d.toUpperCase()}</option>
+                  ))}
+                </select>
+              </div>
+
               <div className={`mt-2 grid grid-cols-1 sm:grid-cols-2 gap-1.5 ${autoAgents ? "opacity-45" : ""}`}>
-                {AGENTS.map(agent => (
+                {roles.map(roleId => (
                   <AgentCheckbox
-                    key={agent.id}
-                    id={agent.id}
-                    desc={agent.desc}
-                    checked={selected.has(agent.id)}
+                    key={roleId}
+                    id={roleId}
+                    desc={`Agent role from ${selectedDivision} division`}
+                    checked={selected.has(roleId)}
                     disabled={autoAgents}
-                    onChange={() => toggleAgent(agent.id)}
+                    onChange={() => toggleAgent(roleId)}
                   />
                 ))}
               </div>

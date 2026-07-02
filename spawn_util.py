@@ -35,51 +35,13 @@ _CLI_TEMPLATES = {
 _CLI_EXES = {"claude": "claude", "codex": "codex", "gemini": "gemini", "cursor": "cursor-agent"}
 
 # Frontend dashboard role ids -> spawn / join_team names
-_ROLE_ALIASES = {
-    "backend": "Backend",
-    "frontend": "Frontend",
-    "tester": "Tester",
-    "qa": "QA",
-    "pm": "PM",
-    "architect": "Architect",
-    "analyst": "Analyst",
-    "dba": "Dba",
-    "ai-integrator": "Ai-Integrator",
-    "reviewer": "Reviewer",
-    "perf-tuner": "Perf-Tuner",
-    "security-auditor": "Security-Auditor",
-    "pen-tester": "Pen-Tester",
-    "dfir-analyst": "Dfir-Analyst",
-    "writer": "Writer",
-    "devops": "DevOps",
-}
-
-AVAILABLE_AGENT_ROLES = [
-    "Architect",
-    "Analyst",
-    "Backend",
-    "Frontend",
-    "Dba",
-    "Ai-Integrator",
-    "Tester",
-    "Reviewer",
-    "Perf-Tuner",
-    "Security-Auditor",
-    "Pen-Tester",
-    "Dfir-Analyst",
-    "Writer",
-    "DevOps",
-]
-
-
 def normalize_role(role: str) -> str:
     """Map UI ids (backend, tester) to stable team role names."""
     r = (role or "").strip()
     if not r:
         return r
-    low = r.lower()
-    if low in _ROLE_ALIASES:
-        return _ROLE_ALIASES[low]
+    if r.lower() == "pm":
+        return "PM"
     if r == r.upper() or (r[0].isupper() and "-" not in r and "_" not in r):
         return r
     parts = r.replace("_", "-").split("-")

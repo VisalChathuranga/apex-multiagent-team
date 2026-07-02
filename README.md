@@ -103,6 +103,9 @@ Claude Code, Codex, Gemini, Cursor — agents can each run on a different servic
 ### 🧠 **Smart Skill Routing**
 Routes across **2,195+ skills** with cached, framework-correct prompts and 17 specialist personas.
 
+### 🔍 **Deep Research Engine**
+Integrated **Vibe-Research** engine powered by `claude-agent-sdk` for autonomous, fully-cited research in `subscription` mode without needing API keys.
+
 ### 📊 **Live Web Dashboard**
 Next.js UI: task board, chat feed, agent roster, metrics, one-click team launch.
 
@@ -389,6 +392,7 @@ Select any combination at launch:
 #### 🏛 **Design & Planning**
 - 🏗 `architect` — C4 diagrams, ADRs, system design
 - 📊 `analyst` — user stories, acceptance criteria, MVP scope
+- 🔍 `researcher` — autonomous deep research, competitive analysis, and tech evaluations using `vibe-research`
 
 #### 🛠 **Build**
 - ⚙️ `backend` — Node / Go / Python / Rust / .NET
@@ -440,8 +444,9 @@ The **8 brain tools** that make autonomy possible:
 | 🔎 `apex_detect_stack` | Polyglot stack detection (Next.js-priority frontend + backend lang) |
 | 🪙 `apex_token_budget` | L0 budget directive for a task |
 | 📊 `apex_status` | Show loaded catalogs, active personas, cache stats |
+| 🔍 `apex_deep_research` | Trigger headless Vibe-Research jobs and save generated markdown reports |
 
-Plus **73 base coordination tools**: `join_team`, `post_message`, `wait_for_message`, `add_task`, `assign_work`, `view_board`, `start_debate` / `judge_debate`, `save_summary` / `load_summary`, `report_finding`, `brain_add`, `start_dashboard`, `export_report`, … See [`FEATURES_GUIDE.md`](FEATURES_GUIDE.md) for the full reference.
+Plus **74 base coordination tools**: `join_team`, `post_message`, `wait_for_message`, `add_task`, `assign_work`, `view_board`, `start_debate` / `judge_debate`, `save_summary` / `load_summary`, `report_finding`, `brain_add`, `start_dashboard`, `export_report`, … See [`FEATURES_GUIDE.md`](FEATURES_GUIDE.md) for the full reference.
 
 ---
 

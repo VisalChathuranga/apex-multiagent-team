@@ -60,7 +60,7 @@ _FRAMEWORK = {  # role -> prompting framework v2.5 assigns
     "security-auditor": "CoT+File-Scope", "pen-tester": "CoT+Scope-Lock",
     "dfir-analyst": "Evidence-First", "architect": "Chain-of-Thought",
     "analyst": "RTF", "reviewer": "Checklist", "perf-tuner": "Measure-First",
-    "devops": "RTF", "team-lead": "Orchestrate", "PM": "Orchestrate",
+    "devops": "RTF", "team-lead": "Orchestrate", "pm": "Orchestrate",
 }
 
 _PERSONAS = {
@@ -95,10 +95,52 @@ _PERSONAS = {
                          "join_team, load_summary BEFORE reading files, assign_work, "
                          "start_debate ONLY for high-stakes calls, save_summary on milestones."),
 }
-# aliases
 _PERSONAS["pm"] = _PERSONAS["team-lead"]
 _PERSONAS["frontend-react"] = _PERSONAS["frontend"]
 _PERSONAS["security"] = _PERSONAS["security-auditor"]
+_PERSONAS["researcher"] = ("Phase 2 · Autonomous Research. Invoke apex_deep_research for deep "
+                           "investigations. Synthesize findings back to the team. Cite sources.")
+
+_persona_index = None
+
+def _build_persona_index() -> dict:
+    global _persona_index
+    if _persona_index is not None:
+        return _persona_index
+    
+    idx = {}
+    for r, content in _PERSONAS.items():
+        idx[r] = {
+            "division": "core",
+            "content": content,
+            "framework": _FRAMEWORK.get(r, "RTF")
+        }
+    
+    persona_dir = Path(r"d:\apex-team\personas")
+    if persona_dir.exists():
+        for div_dir in persona_dir.iterdir():
+            if not div_dir.is_dir():
+                continue
+            for md_file in div_dir.glob("*.md"):
+                # Extract role name from filename, e.g. engineering-frontend-developer.md -> frontend-developer
+                role = md_file.stem
+                if role.startswith(f"{div_dir.name}-"):
+                    role = role[len(div_dir.name)+1:]
+                
+                content = ""
+                try:
+                    content = md_file.read_text(encoding="utf-8", errors="ignore")
+                except Exception:
+                    continue
+                
+                idx[role.lower()] = {
+                    "division": div_dir.name,
+                    "content": content,
+                    "framework": "ReAct+Stop" # Default framework for dynamic personas
+                }
+    _persona_index = idx
+    return idx
+
 
 # fallback keyword routing when catalogs are absent
 _FALLBACK_SKILLS = {
@@ -276,11 +318,12 @@ def apex_status() -> str:
     cs = sum(1 for m in idx.values() if m["lib"] == "CS")
     state = tc._load()
     cache = len(state.get("apex_cache", {}))
+    p_idx = _build_persona_index()
     lines = [
         "=== APEX v2.5 layer ===",
         f"Antigravity skills: {ag}  (dir: {ANTIGRAVITY_DIR}{'' if ANTIGRAVITY_DIR.exists() else '  [MISSING -> fallback]'})",
         f"Cybersecurity skills: {cs}  (dir: {CYBERSEC_DIR}{'' if CYBERSEC_DIR.exists() else '  [MISSING -> fallback]'})",
-        f"Personas available: {len(set(_PERSONAS.values()))}",
+        f"Personas available: {len(p_idx)}",
         f"Prompt-engineer: {'ON' if PROMPT_ENGINEER_ON else 'OFF'} · cache entries: {cache} (TTL {PROMPT_CACHE_TTL}s)",
         "Tools: apex_persona, apex_recommend_skills, apex_build_prompt, apex_detect_stack, apex_token_budget",
     ]
@@ -298,11 +341,15 @@ def apex_persona(role: str) -> str:
               pen-tester, dfir-analyst, reviewer, perf-tuner, writer, devops, team-lead.
     """
     r = role.lower().strip()
-    body = _PERSONAS.get(r)
-    if not body:
-        return (f"No persona '{role}'. Available: " + ", ".join(sorted(set(_PERSONAS) - {'pm','frontend-react','security'})))
-    fw = _FRAMEWORK.get(r, "RTF")
-    return f"=== PERSONA: {role} ===\nframework: {fw}\n{body}"
+    p_idx = _build_persona_index()
+    meta = p_idx.get(r)
+    if not meta:
+        available = ", ".join(sorted(k for k in p_idx.keys() if k not in ('pm', 'team-lead')))
+        return f"No persona '{role}'. Available: {available}"
+    
+    fw = meta.get("framework", "RTF")
+    body = meta.get("content", "")
+    return f"=== PERSONA: {role} ===\ndivision: {meta.get('division', 'unknown')}\nframework: {fw}\n{body}"
 
 
 @mcp.tool()
@@ -371,8 +418,10 @@ def apex_build_prompt(role: str, task: str, use_skills: bool = True,
         if facts and "no facts" not in facts.lower():
             parts += ["--- SHARED FACTS ---", facts[:500]]
 
-    fw = _FRAMEWORK.get(role.lower(), "RTF")
-    persona = _PERSONAS.get(role.lower(), f"Specialist: {role}.")
+    p_idx = _build_persona_index()
+    meta = p_idx.get(role.lower(), {})
+    fw = meta.get("framework", "RTF")
+    persona = meta.get("content", f"Specialist: {role}.")
     parts += [f"--- PERSONA ({fw}) ---", persona]
 
     if skills:
@@ -502,6 +551,7 @@ import apex_trace
 import mcp_gateway
 import a2a_bridge
 import apex_rag
+import apex_research
 
 
 @mcp.tool()
@@ -547,6 +597,16 @@ def gateway_call(target_name: str, tool_name: str, arguments_json: str = "{}") -
 def gateway_openapi_import(name: str, spec_json: str, base_url: str = "") -> str:
     """Import an OpenAPI/Swagger JSON spec as a gateway adapter."""
     return mcp_gateway.openapi_import(name, spec_json, base_url)
+
+
+@mcp.tool()
+def apex_deep_research(topic: str, depth: str = "standard", mode: str = "subscription") -> str:
+    """Run an autonomous multi-agent research crew on a specific topic.
+    Returns the absolute path to the generated Markdown report.
+    depth can be 'quick', 'standard', or 'deep'.
+    mode can be 'auto', 'api', 'openai', etc.
+    """
+    return apex_research.apex_deep_research(topic, depth, mode)
 
 
 @mcp.tool()
