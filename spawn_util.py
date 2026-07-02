@@ -204,15 +204,17 @@ def ensure_cli_mcp(cli: str, project_root: str = "") -> Dict[str, str]:
     python_exe = sys.executable or "python"
     server = str(HERE / "apex_v25.py")
 
+    exe_path = shutil.which(cli)
+
     if cli == "claude":
-        _run_config_command(["claude", "mcp", "remove", "team", "-s", "user"])
-        argv = ["claude", "mcp", "add", "team", "-s", "user"]
+        _run_config_command([exe_path, "mcp", "remove", "team", "-s", "user"])
+        argv = [exe_path, "mcp", "add", "team", "-s", "user"]
         for k, v in env.items():
             argv += ["-e", f"{k}={v}"]
         argv += ["--", python_exe, server]
     else:
-        _run_config_command(["codex", "mcp", "remove", "team"])
-        argv = ["codex", "mcp", "add", "team"]
+        _run_config_command([exe_path, "mcp", "remove", "team"])
+        argv = [exe_path, "mcp", "add", "team"]
         for k, v in env.items():
             argv += ["--env", f"{k}={v}"]
         argv += ["--", python_exe, server]
